@@ -6,6 +6,11 @@ from PIL import Image
 from functools import reduce
 import numpy as np
 import time
+from PySide2 import QtGui,QtCore
+from PySide2.QtWidgets import QApplication, QLabel
+import sys
+
+import random
 
 
 from argparse import ArgumentParser
@@ -148,8 +153,49 @@ print ("Took", time.time() - t0)
 
 rgb = [Image.fromarray((255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8), "L") for c in color.components()]
 
-img = Image.merge("RGB", rgb)
-img.show()
+
+
+# Visualisation on PySide
+app = QApplication(sys.argv)
+
+
+GRAY_COLORTABLE = []
+for i in range(256):
+    GRAY_COLORTABLE.append(QtGui.qRgb(i, i, i))
+
+
+def array2qpixmap(img_array):
+    height, width = img_array.shape
+    bytesPerLine, _ = img_array.strides
+    image = QtGui.QImage(
+        img_array.data.tobytes(),
+        width,
+        height,
+        bytesPerLine,
+        QtGui.QImage.Format_Indexed8,
+    )
+    image.setColorTable(GRAY_COLORTABLE)
+    return QtGui.QPixmap.fromImage(image)
+
+
+# bytesPerLine, _, _ = img.strides
+# qi = QtGui.QImage(img, img.shape[1], img.shape[0], QtGui.QImage.Format_RGB32)
+# # # convert it to a QPixmap for display:
+# qp = QtGui.QPixmap.fromImage(qi)
+
+img_array = np.zeros((w,h), dtype=np.uint8)
+img_array[:, :] = 127
+
+lab = QLabel()
+# lab.resize(w, h)
+lab.setWindowTitle("Hello Marco")
+lab.setPixmap(array2qpixmap(img_array.copy()))
+lab.show()
+
+# img = Image.merge("RGB", rgb)
+# img.show()
+
+sys.exit(app.exec_())
 
 
 '''

@@ -1,3 +1,4 @@
 termcolor
 pillow
 numpy
+PySide2
