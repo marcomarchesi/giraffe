@@ -10,8 +10,6 @@ from PySide2 import QtGui,QtCore
 from PySide2.QtWidgets import QApplication, QLabel
 import sys
 
-import random
-
 
 from argparse import ArgumentParser
 from logo import show_logo
@@ -29,6 +27,8 @@ args = parser.parse_args()
 
 # start with this
 show_logo()
+
+
 
 # size of the image to render
 (w, h) = (args.image_width, args.image_height)
@@ -151,45 +151,32 @@ Q = vec3(x, y, 0)
 color = raytrace(camera0.position, (Q - camera0.position).norm(), scene)
 print ("Took", time.time() - t0)
 
-rgb = [Image.fromarray((255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8), "L") for c in color.components()]
+# rgb = [Image.fromarray((255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8), "L") for c in color.components()]
+rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c in color.components()], axis=2)
+
 
 
 
 # Visualisation on PySide
 app = QApplication(sys.argv)
 
-
-GRAY_COLORTABLE = []
-for i in range(256):
-    GRAY_COLORTABLE.append(QtGui.qRgb(i, i, i))
-
-
 def array2qpixmap(img_array):
-    height, width = img_array.shape
-    bytesPerLine, _ = img_array.strides
+    height, width, channels = img_array.shape
+    bytesPerLine, _, _ = img_array.strides
     image = QtGui.QImage(
         img_array.data.tobytes(),
         width,
         height,
         bytesPerLine,
-        QtGui.QImage.Format_Indexed8,
+        QtGui.QImage.Format_RGB888,
     )
-    image.setColorTable(GRAY_COLORTABLE)
     return QtGui.QPixmap.fromImage(image)
 
 
-# bytesPerLine, _, _ = img.strides
-# qi = QtGui.QImage(img, img.shape[1], img.shape[0], QtGui.QImage.Format_RGB32)
-# # # convert it to a QPixmap for display:
-# qp = QtGui.QPixmap.fromImage(qi)
-
-img_array = np.zeros((w,h), dtype=np.uint8)
-img_array[:, :] = 127
-
 lab = QLabel()
-# lab.resize(w, h)
-lab.setWindowTitle("Hello Marco")
-lab.setPixmap(array2qpixmap(img_array.copy()))
+lab.resize(w, h)
+lab.setWindowTitle("Giraffe")
+lab.setPixmap(array2qpixmap(rgb.copy()))
 lab.show()
 
 # img = Image.merge("RGB", rgb)
@@ -201,6 +188,6 @@ sys.exit(app.exec_())
 '''
 TODO 
 2. instance lights, cameras, objects
-2b. generalize to multiple
-3. render on pyside
+2b. generalize to multiple lights
+4. import obj assets
 '''
