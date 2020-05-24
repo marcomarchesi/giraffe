@@ -1,6 +1,8 @@
 
 
 from termcolor import colored
+import yaml
+import os
 
 logo = '''
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -26,8 +28,28 @@ logo = '''
 *#%&&&#/*(%%%#***%(#(#&&&/(%&.,,,,,,((/(%(&%/%%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 /%%###/*/%&&%/((%&&&%/(#&&,,,,.,,,,.,,%%%&&&&&*,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 /*****/*(((#(((%&&&&&&*,,,,,,,,,,,,,,..,**,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-%%%%%((&@@&&#*/%&@(,,,,,,,,,,,,,,,,,,,,,,,.,,,,,,,,,,,,,,,,,,,,,,,, GIRAFFE v0.1
+%%%%%((&@@&&#*/%&@(,,,,,,,,,,,,,,,,,,,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 '''
 
-def show_logo():
+class Giraffe:
+    '''
+Here to setup the build
+    '''
+    def __init__(self):
+        self.build = 0
+        self.version = 0.1
+
+        path = 'giraffe.yml'
+        with open(path, 'r+') as f:
+            config = yaml.load(f, Loader = yaml.FullLoader)
+            self.build = config['build'] + 1
+            config = {'build':self.build,'version':self.version}
+        with open(path, 'w+') as f:
+            f.write(yaml.dump(config))
+    
+    def update_version(self, version):
+        self.version = version
+
+def show_logo(build, version):
     print(colored(logo, 'yellow'))
+    print(colored('b{} v{}'.format(build, version), 'green'))

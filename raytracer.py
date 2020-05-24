@@ -12,7 +12,7 @@ import sys
 
 
 from argparse import ArgumentParser
-from logo import show_logo
+from logo import show_logo, Giraffe
 from gmath import vec3, extract, FARAWAY
 # from gprimitives import Sphere, CheckeredSphere
 
@@ -26,8 +26,9 @@ parser.add_argument('--image-height', default=800)
 args = parser.parse_args()
 
 # start with this
-show_logo()
-
+# increment the build number
+app = Giraffe()
+show_logo(app.build, app.version)
 
 
 # size of the image to render
@@ -42,12 +43,6 @@ class Camera:
 class Light:
     def __init__(self, position, intensity):
         self.position = position
-
-
-# Point light position
-light0 = Light(vec3(5, 5, -1), 1.0)
-# Camera position       
-camera0 = Camera(vec3(0, 0.3, -1))
 
 class Primitive:
     pass
@@ -131,8 +126,11 @@ def raytrace(O, D, scene, bounce = 0):
     return color
 
 
-
-
+# Point light position
+light0 = Light(vec3(5, 5, -1), 1.0)
+# Camera position       
+camera0 = Camera(vec3(0, 0.3, -1))
+# objects in the scene
 scene = [
     Sphere(vec3(.75, .1, 1), .6, vec3(0, 0, 1)),
     Sphere(vec3(-.75, .1, 2.25), .6, vec3(.5, .223, .5)),
@@ -143,8 +141,12 @@ scene = [
 r = float(w) / h
 # Screen coordinates: x0, y0, x1, y1.
 S = (-1, 1 / r + .25, 1, -1 / r + .25)
+# print(S)
 x = np.tile(np.linspace(S[0], S[2], w), h)
 y = np.repeat(np.linspace(S[1], S[3], h), w)
+
+# print (x)
+# print(y)
 
 t0 = time.time()
 Q = vec3(x, y, 0)
@@ -158,7 +160,7 @@ rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c 
 
 
 # Visualisation on PySide
-app = QApplication(sys.argv)
+gui_app = QApplication(sys.argv)
 
 def array2qpixmap(img_array):
     height, width, channels = img_array.shape
@@ -182,7 +184,12 @@ lab.show()
 # img = Image.merge("RGB", rgb)
 # img.show()
 
-sys.exit(app.exec_())
+sys.exit(gui_app.exec_())
+
+
+def render(scene, camera, light):
+    pass
+
 
 
 '''
