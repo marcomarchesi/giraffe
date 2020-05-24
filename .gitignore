@@ -1,0 +1,8 @@
+__pycache__
+
+# venv
+bin/
+include/
+lib/
+pyvenv.cfg
+
