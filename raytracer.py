@@ -9,31 +9,47 @@ import time
 from PySide2 import QtGui,QtCore
 from PySide2.QtWidgets import QApplication, QLabel
 import sys
+from multiprocessing import Process
 
 
 from argparse import ArgumentParser
 from giraffe import show_logo, Giraffe
 from gmath import vec3, extract, FARAWAY
-# from gprimitives import Sphere, CheckeredSphere
+from gutils import TicToc
+
 
 '''
 Arguments
 '''
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=1600)
-parser.add_argument('--image-height', default=800)
+parser.add_argument('--image-width', default=400)
+parser.add_argument('--image-height', default=300)
 args = parser.parse_args()
+
+
+# size of the image to render
+(w, h) = (args.image_width, args.image_height)
 
 # start with this
 # increment the build number
 app = Giraffe()
 show_logo(app.build, app.version)
 
+# Visualisation on PySide
+gui_app = QApplication(sys.argv)
 
-# size of the image to render
-(w, h) = (args.image_width, args.image_height)
-
+def array2qpixmap(img_array):
+    height, width, channels = img_array.shape
+    bytesPerLine, _, _ = img_array.strides
+    image = QtGui.QImage(
+        img_array.data.tobytes(),
+        width,
+        height,
+        bytesPerLine,
+        QtGui.QImage.Format_RGB888,
+    )
+    return QtGui.QPixmap.fromImage(image)
 
 
 class Camera:
@@ -144,47 +160,25 @@ S = (-1, 1 / r + .25, 1, -1 / r + .25)
 
 x = np.tile(np.linspace(S[0], S[2], w), h)
 y = np.repeat(np.linspace(S[1], S[3], h), w)
-t0 = time.time()
+timer = TicToc()
 Q = vec3(x, y, 0)
 color = raytrace(camera0.position, (Q - camera0.position).norm(), scene)
-print ("Took", time.time() - t0)
+
 
 rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c in color.components()], axis=2)
 
-
-
-
-# Visualisation on PySide
-gui_app = QApplication(sys.argv)
-
-def array2qpixmap(img_array):
-    height, width, channels = img_array.shape
-    bytesPerLine, _, _ = img_array.strides
-    image = QtGui.QImage(
-        img_array.data.tobytes(),
-        width,
-        height,
-        bytesPerLine,
-        QtGui.QImage.Format_RGB888,
-    )
-    return QtGui.QPixmap.fromImage(image)
-
-
 lab = QLabel()
-lab.resize(w, h)
 lab.setWindowTitle("Giraffe")
-lab.setPixmap(array2qpixmap(rgb.copy()))
+lab.setPixmap(array2qpixmap(rgb))
 lab.show()
-
-# img = Image.merge("RGB", rgb)
-# img.show()
-
-sys.exit(gui_app.exec_())
+lab.resize(w, h)
 
 
-def render(scene, camera, light):
-    pass
+print("Rendered in {}s.".format(timer.now))
 
+
+# sys.exit(gui_app.exec_()) TODO check the difference
+gui_app.exec_()
 
 
 '''
