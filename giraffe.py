@@ -39,7 +39,7 @@ Here to setup the build
         self.build = 0
         self.version = 0.1
 
-        path = 'giraffe.yml'
+        path = '.giraffe'
         with open(path, 'r+') as f:
             config = yaml.load(f, Loader = yaml.FullLoader)
             self.build = config['build'] + 1

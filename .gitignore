@@ -1,8 +1,13 @@
 __pycache__
 
+# MacOS
+.DS_Store
+
 # venv
 bin/
 include/
 lib/
 pyvenv.cfg
+
+
 

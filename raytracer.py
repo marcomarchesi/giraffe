@@ -12,7 +12,7 @@ import sys
 
 
 from argparse import ArgumentParser
-from logo import show_logo, Giraffe
+from giraffe import show_logo, Giraffe
 from gmath import vec3, extract, FARAWAY
 # from gprimitives import Sphere, CheckeredSphere
 
@@ -141,19 +141,14 @@ scene = [
 r = float(w) / h
 # Screen coordinates: x0, y0, x1, y1.
 S = (-1, 1 / r + .25, 1, -1 / r + .25)
-# print(S)
+
 x = np.tile(np.linspace(S[0], S[2], w), h)
 y = np.repeat(np.linspace(S[1], S[3], h), w)
-
-# print (x)
-# print(y)
-
 t0 = time.time()
 Q = vec3(x, y, 0)
 color = raytrace(camera0.position, (Q - camera0.position).norm(), scene)
 print ("Took", time.time() - t0)
 
-# rgb = [Image.fromarray((255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8), "L") for c in color.components()]
 rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c in color.components()], axis=2)
 
 
