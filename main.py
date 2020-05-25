@@ -1,5 +1,9 @@
 '''
 Giraffe
+
+Some starting points:
+https://github.com/jamesbowman/raytrace/blob/master/rt3.py
+
 '''
 
 from PIL import Image
@@ -16,15 +20,15 @@ from argparse import ArgumentParser
 from giraffe import show_logo, Giraffe
 from gmath import vec3, extract, FARAWAY
 from gutils import TicToc
-from gprimitives import Light, Camera, Sphere, CheckeredSphere, raytrace
+from gprimitives import Light, Camera, Sphere, CheckeredSphere, Plane, raytrace
 
 '''
 Arguments
 '''
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=400)
-parser.add_argument('--image-height', default=300)
+parser.add_argument('--image-width', default=800)
+parser.add_argument('--image-height', default=400)
 args = parser.parse_args()
 
 
@@ -55,7 +59,7 @@ def array2qpixmap(img_array):
 
 
 # Point light position
-light0 = Light(vec3(5, 5, -1), 1.0)
+light0 = Light(vec3(5, 5, 3), 1.0)
 # Camera position       
 camera0 = Camera(vec3(0, 0.3, -1))
 # objects in the scene
@@ -64,6 +68,7 @@ scene = [
     Sphere(vec3(-.75, .1, 2.25), .6, vec3(.5, .223, .5)),
     Sphere(vec3(-2.75, .1, 3.5), .6, vec3(1, .572, .184)),
     CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(.75, .75, .75), 0.25),
+    Plane(vec3(.75,.1, 5), vec3(1,0,1), vec3(1.,0.,1.), reflection=0.0)  # Point Normal DiffuseColor
     ]
 
 # aspect ratio
@@ -93,8 +98,8 @@ rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c 
 lab = QLabel()
 lab.setWindowTitle("Giraffe")
 lab.setPixmap(array2qpixmap(rgb))
-lab.show()
 lab.resize(w, h)
+lab.show()
 
 # stop tracking rendering time
 print("Rendered in {}s.".format(timer.now))
@@ -106,6 +111,9 @@ gui_app.exec_()
 
 '''
 TODO 
+- transparency
+- refraction
+
 1. plane-ray intersection
 2. disc-ray intersection
 3. triangle-ray intersection
