@@ -18,7 +18,8 @@ class TicToc:
 
 
 if __name__ == "__main__":
-    timer = TicToc()
 
+    # let's implement it
+    timer = TicToc()
     print(timer.now)
     print(timer.now)
