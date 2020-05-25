@@ -3,6 +3,8 @@ Giraffe
 
 Some starting points:
 https://github.com/jamesbowman/raytrace/blob/master/rt3.py
+https://www.scratchapixel.com/index.php
+
 
 '''
 
@@ -17,9 +19,11 @@ import sys
 
 from argparse import ArgumentParser
 from giraffe import show_logo, Giraffe
-from gmath import vec3, extract, FARAWAY
+from gmath import vec3
+from gprimitives import Light, Camera, Sphere, CheckeredSphere, Plane, Disc
+from grenderer import render, preview
+
 from gutils import TicToc
-from gprimitives import Light, Camera, Sphere, CheckeredSphere, Plane, Disc, raytrace
 
 '''
 Arguments
@@ -32,7 +36,7 @@ args = parser.parse_args()
 
 
 # size of the image to render
-(w, h) = (args.image_width, args.image_height)
+(width, height) = (args.image_width, args.image_height)
 
 # start with this
 # increment the build number
@@ -71,38 +75,38 @@ scene = [
     Disc(vec3(0,0.5, 0), vec3(0,1,0), 1.0, vec3(0.,1.,0.), reflection=0.0)  # Point Normal DiffuseColor
     ]
 
-# aspect ratio
-r = float(w) / h
-# Screen coordinates: x0, y0, x1, y1.
-S = (-1, 1 / r + .25, 1, -1 / r + .25)
-x = np.tile(np.linspace(S[0], S[2], w), h)
-y = np.repeat(np.linspace(S[1], S[3], h), w)
 
-# start tracking rendering time
+def preview(rgb,factor=10):
+    height, width, channels = rgb.shape
+    height *= factor
+    width *= factor
+    zoomed_rgb = np.zeros((height, width, channels), dtype=np.uint8)
+    for c in range(channels):
+        for i in range(width):
+            for j in range(height):
+                ii = int(i / factor)
+                jj = int(j / factor)
+                zoomed_rgb[j,i,c] = rgb[jj, ii, c]
+    return zoomed_rgb
+
+factor = 10
+size = (width, height)
+preview_size = np.divide(size, factor).astype(np.uint8)
+rgb = render(preview_size, scene, camera0, light0)
+
 timer = TicToc()
+zoomed_rgb = preview(rgb)
+print(timer.now)
 
 
-# all the points in the viewport
-Q = vec3(x, y, 0)
-
-# let's raytrace!
-color = raytrace(camera0.position, 
-                (Q - camera0.position).norm(), 
-                scene, 
-                light0.position, 
-                camera0.position)
-
-# convert into a numpy array [w,h,c]
-rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c in color.components()], axis=2)
 
 lab = QLabel()
 lab.setWindowTitle("Giraffe")
-lab.setPixmap(array2qpixmap(rgb))
-lab.resize(w, h)
+lab.setPixmap(array2qpixmap(zoomed_rgb))
+lab.resize(width, height)
 lab.show()
 
-# stop tracking rendering time
-print("Rendered in {}s.".format(timer.now))
+
 
 
 # sys.exit(gui_app.exec_()) TODO check the difference
@@ -111,11 +115,10 @@ gui_app.exec_()
 
 '''
 TODO 
-- camera interaction
+- realtime preview
+- camera interaction (with keys)
 - transparency
 - refraction
-- disc primitive (some sort)
+- triangle-ray intersection
 
-3. triangle-ray intersection
-4. cube-ray intersection
 '''
