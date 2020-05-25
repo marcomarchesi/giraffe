@@ -13,14 +13,13 @@ import time
 from PySide2 import QtGui,QtCore
 from PySide2.QtWidgets import QApplication, QLabel
 import sys
-from multiprocessing import Process
 
 
 from argparse import ArgumentParser
 from giraffe import show_logo, Giraffe
 from gmath import vec3, extract, FARAWAY
 from gutils import TicToc
-from gprimitives import Light, Camera, Sphere, CheckeredSphere, Plane, raytrace
+from gprimitives import Light, Camera, Sphere, CheckeredSphere, Plane, Disc, raytrace
 
 '''
 Arguments
@@ -68,7 +67,8 @@ scene = [
     Sphere(vec3(-.75, .1, 2.25), .6, vec3(.5, .223, .5)),
     Sphere(vec3(-2.75, .1, 3.5), .6, vec3(1, .572, .184)),
     CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(.75, .75, .75), 0.25),
-    Plane(vec3(.75,.1, 5), vec3(1,0,1), vec3(1.,0.,1.), reflection=0.0)  # Point Normal DiffuseColor
+    # Plane(vec3(.75,.1, 5), vec3(1,0,1), vec3(1.,0.,1.), reflection=0.0)  # Point Normal DiffuseColor
+    Disc(vec3(0,0.5, 0), vec3(0,1,0), 1.0, vec3(0.,1.,0.), reflection=0.0)  # Point Normal DiffuseColor
     ]
 
 # aspect ratio
@@ -111,11 +111,11 @@ gui_app.exec_()
 
 '''
 TODO 
+- camera interaction
 - transparency
 - refraction
+- disc primitive (some sort)
 
-1. plane-ray intersection
-2. disc-ray intersection
 3. triangle-ray intersection
 4. cube-ray intersection
 '''

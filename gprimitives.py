@@ -17,6 +17,37 @@ class Light:
 class Primitive:    
     def diffusecolor(self, M):
         return self.diffuse
+    
+    def light(self, O, D, d, scene, light, camera, bounce):
+        M = (O + D * d)                         # intersection point
+        N = self.normal
+
+        toL = (light - M).norm()                    # direction to light
+        toO = (camera - M).norm()                    # direction to ray origin
+        nudged = M + N * .0001                  # M nudged to avoid itself
+
+        # Shadow: find if the point is shadowed or not.
+        # This amounts to finding out if M can see the light
+        light_distances = [s.intersect(nudged, toL) for s in scene]
+        light_nearest = reduce(np.minimum, light_distances)
+        seelight = light_distances[scene.index(self)] == light_nearest
+
+        # Ambient
+        color = vec3(0.05, 0.05, 0.05)
+
+        # Lambert shading (diffuse)
+        lv = np.maximum(N.dot(toL), 0)
+        color += self.diffusecolor(M) * lv * seelight
+
+        # Reflection
+        if bounce < 5:
+            rayD = (D - N * 2 * D.dot(N)).norm()
+            color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
+
+        # Blinn-Phong shading (specular)
+        phong = N.dot((toL + toO).norm())
+        color += vec3(1, 1, 1) * np.power(np.clip(phong, 0, 1), 50) * seelight
+        return color
 
 
 
@@ -74,6 +105,26 @@ class CheckeredSphere(Sphere):
         checker = ((M.x * 2).astype(int) % 2) == ((M.z * 2).astype(int) % 2)
         return self.diffuse * checker
 
+class Disc (Primitive):
+    def __init__(self, point, normal, radius, diffuse, reflection=0.5):
+        self.diffuse = diffuse
+        self.reflection = reflection
+        self.c = point
+        normal = normal.norm()
+        self.normal = normal
+        self.r = radius
+    
+    def intersect(self, O, D):
+
+        PO = self.c - O
+        num = PO.dot(self.normal)
+        den = D.dot(self.normal)
+        dist = PO.dot(PO)
+        sqr_radius = self.r * self.r
+        h = num / den
+        pred = (den > 1e-6) & (dist <= sqr_radius)
+        return np.where(pred, h, FARAWAY)
+
 class Plane (Primitive):
     def __init__(self, point, normal, diffuse, reflection=0.5):
         self.diffuse = diffuse
@@ -92,7 +143,6 @@ class Plane (Primitive):
     
     def light(self, O, D, d, scene, light, camera, bounce):
         M = (O + D * d)                         # intersection point
-        # N = (M - self.c) * (1. / self.r)        # normal
         N = self.normal
 
         toL = (light - M).norm()                    # direction to light
