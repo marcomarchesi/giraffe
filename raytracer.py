@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 from giraffe import show_logo, Giraffe
 from gmath import vec3, extract, FARAWAY
 from gutils import TicToc
-
+from gprimitives import Light, Camera
 
 '''
 Arguments
@@ -52,44 +52,20 @@ def array2qpixmap(img_array):
     return QtGui.QPixmap.fromImage(image)
 
 
-class Camera:
-    def __init__(self, position):
-        self.position = position
-
-class Light:
-    def __init__(self, position, intensity):
-        self.position = position
-
 class Primitive:
-    pass
-
-class Sphere (Primitive):
-    def __init__(self, center, r, diffuse, mirror = 0.5):
-        self.c = center
-        self.r = r
+    def __init__(self, diffuse, reflection = 0.5):
         self.diffuse = diffuse
-        self.mirror = mirror
-
-    def intersect(self, O, D):
-        b = 2 * D.dot(O - self.c)
-        c = abs(self.c) + abs(O) - 2 * self.c.dot(O) - (self.r * self.r)
-        disc = (b ** 2) - (4 * c)
-        sq = np.sqrt(np.maximum(0, disc))
-        h0 = (-b - sq) / 2
-        h1 = (-b + sq) / 2
-        h = np.where((h0 > 0) & (h0 < h1), h0, h1)
-        pred = (disc > 0) & (h > 0)
-        return np.where(pred, h, FARAWAY)
-
+        self.reflection = reflection
+    
     def diffusecolor(self, M):
         return self.diffuse
 
-    def light(self, O, D, d, scene, bounce):
+    def light(self, O, D, d, scene, light, camera, bounce):
         M = (O + D * d)                         # intersection point
         N = (M - self.c) * (1. / self.r)        # normal
 
-        toL = (light0.position - M).norm()                    # direction to light
-        toO = (camera0.position - M).norm()                    # direction to ray origin
+        toL = (light - M).norm()                    # direction to light
+        toO = (camera - M).norm()                    # direction to ray origin
         nudged = M + N * .0001                  # M nudged to avoid itself
 
         # Shadow: find if the point is shadowed or not.
@@ -108,27 +84,57 @@ class Sphere (Primitive):
         # Reflection
         if bounce < 5:
             rayD = (D - N * 2 * D.dot(N)).norm()
-            color += raytrace(nudged, rayD, scene, bounce + 1) * self.mirror
+            color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
 
         # Blinn-Phong shading (specular)
         phong = N.dot((toL + toO).norm())
         color += vec3(1, 1, 1) * np.power(np.clip(phong, 0, 1), 50) * seelight
         return color
 
+
+class Sphere (Primitive):
+    def __init__(self, center, r, diffuse, reflection = 0.5):
+        super().__init__(diffuse, reflection = 0.5)
+        self.c = center
+        self.r = r
+
+    def intersect(self, O, D):
+        b = 2 * D.dot(O - self.c)
+        c = abs(self.c) + abs(O) - 2 * self.c.dot(O) - (self.r * self.r)
+        disc = (b ** 2) - (4 * c) # 2nd grade equation to solve for the sphere
+        sq = np.sqrt(np.maximum(0, disc))
+        h0 = (-b - sq) / 2
+        h1 = (-b + sq) / 2
+        h = np.where((h0 > 0) & (h0 < h1), h0, h1)
+        pred = (disc > 0) & (h > 0)
+        return np.where(pred, h, FARAWAY)
+
+
+
 class CheckeredSphere(Sphere):
     def diffusecolor(self, M):
         checker = ((M.x * 2).astype(int) % 2) == ((M.z * 2).astype(int) % 2)
         return self.diffuse * checker
 
-def raytrace(O, D, scene, bounce = 0):
 
-    # O is the ray origin, D is the normalized ray direction
-    # scene is a list of Sphere objects (see below)
-    # bounce is the number of the bounce, starting at zero for camera rays
 
+
+def raytrace(O, D, scene, light, camera, bounce = 0):
+    '''
+    O is the camera position == the ray origin
+    D is the normalized ray direction
+    scene is a list of Sphere objects (see below)
+    bounce is the number of the bounce, starting at zero for camera rays
+    '''
+
+    # select all the points where the objects intersect ray directions
     distances = [s.intersect(O, D) for s in scene]
     nearest = reduce(np.minimum, distances)
+
+    # start with complete dark
     color = vec3(0, 0, 0)
+
+    # print(color.components())
 
     for (s, d) in zip(scene, distances):
         hit = (nearest != FARAWAY) & (d == nearest)
@@ -136,11 +142,10 @@ def raytrace(O, D, scene, bounce = 0):
             dc = extract(hit, d)
             Oc = O.extract(hit)
             Dc = D.extract(hit)
-            cc = s.light(Oc, Dc, dc, scene, bounce)
+            cc = s.light(Oc, Dc, dc, scene, light, camera, bounce)
             color += cc.place(hit)
         
     return color
-
 
 # Point light position
 light0 = Light(vec3(5, 5, -1), 1.0)
@@ -154,17 +159,24 @@ scene = [
     CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(.75, .75, .75), 0.25),
     ]
 
+# aspect ratio
 r = float(w) / h
 # Screen coordinates: x0, y0, x1, y1.
 S = (-1, 1 / r + .25, 1, -1 / r + .25)
-
 x = np.tile(np.linspace(S[0], S[2], w), h)
 y = np.repeat(np.linspace(S[1], S[3], h), w)
+
+# start tracking rendering time
 timer = TicToc()
+
+
+# all the points in the viewport
 Q = vec3(x, y, 0)
-color = raytrace(camera0.position, (Q - camera0.position).norm(), scene)
 
+# let's raytrace!
+color = raytrace(camera0.position, (Q - camera0.position).norm(), scene, light0.position, camera0.position)
 
+# convert into a numpy array [w,h,c]
 rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c in color.components()], axis=2)
 
 lab = QLabel()
@@ -173,7 +185,7 @@ lab.setPixmap(array2qpixmap(rgb))
 lab.show()
 lab.resize(w, h)
 
-
+# stop tracking rendering time
 print("Rendered in {}s.".format(timer.now))
 
 
@@ -185,5 +197,5 @@ gui_app.exec_()
 TODO 
 2. instance lights, cameras, objects
 2b. generalize to multiple lights
-4. import obj assets
+4. import obj assets (we start with triangles-ray intersection)
 '''
