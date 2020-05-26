@@ -37,6 +37,16 @@ def render(size, scene, camera, light):
 
     return rgb
 
-def preview(size, factor=10):
+def preview(rgb,factor=20):
+    height, width, channels = rgb.shape
+    height *= factor
+    width *= factor
+    zoomed_rgb = np.zeros((height, width, channels), dtype=np.uint8)
+    for c in range(channels):
+        for i in range(width):
+            for j in range(height):
+                ii = int(i / factor)
+                jj = int(j / factor)
+                zoomed_rgb[j,i,c] = rgb[jj, ii, c]
 
-    w,h = np.divide(size, factor)    # divide both dimensions by the factor
+    return zoomed_rgb

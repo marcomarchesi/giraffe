@@ -51,5 +51,5 @@ Here to setup the build
         self.version = version
 
 def show_logo(build, version):
-    print(colored(logo, 'yellow'))
+    # print(colored(logo, 'yellow'))
     print(colored('b{} v{}'.format(build, version), 'green'))

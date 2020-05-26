@@ -126,10 +126,10 @@ class Disc (Primitive):
         return np.where(pred, h, FARAWAY)
 
 class Plane (Primitive):
-    def __init__(self, point, normal, diffuse, reflection=0.5):
+    def __init__(self, center, normal, diffuse, reflection=0.5):
         self.diffuse = diffuse
         self.reflection = reflection
-        self.c = point
+        self.c = center
         self.normal = normal
         self.r = 1.0
 

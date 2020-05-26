@@ -72,42 +72,71 @@ scene = [
     Sphere(vec3(-2.75, .1, 3.5), .6, vec3(1, .572, .184)),
     CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(.75, .75, .75), 0.25),
     # Plane(vec3(.75,.1, 5), vec3(1,0,1), vec3(1.,0.,1.), reflection=0.0)  # Point Normal DiffuseColor
-    Disc(vec3(0,0.5, 0), vec3(0,1,0), 1.0, vec3(0.,1.,0.), reflection=0.0)  # Point Normal DiffuseColor
+    # Disc(vec3(0,0.5, 0), vec3(0,1,0), 1.0, vec3(0.,1.,0.), reflection=0.0)  # Point Normal DiffuseColor
     ]
 
 
-def preview(rgb,factor=10):
-    height, width, channels = rgb.shape
-    height *= factor
-    width *= factor
-    zoomed_rgb = np.zeros((height, width, channels), dtype=np.uint8)
-    for c in range(channels):
-        for i in range(width):
-            for j in range(height):
-                ii = int(i / factor)
-                jj = int(j / factor)
-                zoomed_rgb[j,i,c] = rgb[jj, ii, c]
-    return zoomed_rgb
-
-factor = 10
+# factor = 10
 size = (width, height)
-preview_size = np.divide(size, factor).astype(np.uint8)
-rgb = render(preview_size, scene, camera0, light0)
+# preview_size = np.divide(size, factor).astype(np.uint8)
 
-timer = TicToc()
-zoomed_rgb = preview(rgb)
-print(timer.now)
+class MainWindow(QLabel):
 
+    def __init__(self):
+        super(MainWindow, self).__init__()
+        self.label = QLabel(self)
+        
+        self.initUI()
+        
+    def initUI(self):      
+        
+        self.setWindowTitle("Giraffe")
+        rgb = render(size, scene, camera0, light0)
+        # zoomed_rgb = preview(rgb)
+        self.setPixmap(array2qpixmap(rgb))
+        self.resize(width, height)
 
+        # render time
+        self.label.setGeometry(width - 100, height - 100, 250, 150)
+        self.label.setStyleSheet("QLabel {color:yellow;}")
+        self.label.show()
 
-lab = QLabel()
-lab.setWindowTitle("Giraffe")
-lab.setPixmap(array2qpixmap(zoomed_rgb))
-lab.resize(width, height)
-lab.show()
+        self.show()
+    
+    def _render(self):
+        timer = TicToc()
+        rgb = render(size, scene, camera0, light0)
+        # zoomed_rgb = preview(rgb)
+        self.setPixmap(array2qpixmap(rgb))
+        self.label.setText(str(timer.now) + "s")
+        
+    def keyPressEvent(self, e):
+        
+        if e.key() == QtCore.Qt.Key_Escape:
+            self.close()
+        if e.key() == QtCore.Qt.Key.Key_W:
+            for s in scene:
+                s.c.z -= .25
+            # camera0.position.z -= .25
+            self._render()
+        if e.key() == QtCore.Qt.Key.Key_S:
+            for s in scene:
+                s.c.z += .25
+            # camera0.position.z += .25
 
+            self._render()
+        if e.key() == QtCore.Qt.Key.Key_A:
+            # camera0.position.x += .25
+            for s in scene:
+                s.c.x += .25
+            self._render()
+        if e.key() == QtCore.Qt.Key.Key_D:
+            for s in scene:
+                s.c.x -= .25
+            # camera0.position.x -= .25
+            self._render()
 
-
+lab = MainWindow()
 
 # sys.exit(gui_app.exec_()) TODO check the difference
 gui_app.exec_()
