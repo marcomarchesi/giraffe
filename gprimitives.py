@@ -7,9 +7,9 @@ from gmath import FARAWAY, vec3, extract
 from functools import reduce
 
 class Camera:
-    def __init__(self, position):
+    def __init__(self, position, focal_length=0.5):
         self.position = position
-
+        self.focal_length = focal_length
 class Light:
     def __init__(self, position, intensity):
         self.position = position

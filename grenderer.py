@@ -20,7 +20,7 @@ def render(size, scene, camera, light):
     # start tracking rendering time
     timer = TicToc()
     # all the points in the viewport
-    Q = vec3(camera.position.x + x, camera.position.y + y, camera.position.z + 1)
+    Q = vec3(camera.position.x + x, camera.position.y + y, camera.position.z + camera.focal_length)
 
     # let's raytrace!
     color = raytrace(camera.position, 

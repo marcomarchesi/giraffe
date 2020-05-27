@@ -64,7 +64,7 @@ def array2qpixmap(img_array):
 # Point light position
 light0 = Light(vec3(5, 5, -10), 1.0)
 # Camera position       
-camera0 = Camera(vec3(0, -0.35, -0.35))
+camera0 = Camera(vec3(0, 0, 0))
 # objects in the scene
 scene = [
     Sphere(vec3(.75, .1, 1), .6, vec3(0, 0, 1)),
@@ -120,12 +120,19 @@ class MainWindow(QLabel):
         if e.key() == QtCore.Qt.Key.Key_S:
             camera0.position.z -= .25
             self._render()
-        if e.key() == QtCore.Qt.Key.Key_A:
+        if e.key() == QtCore.Qt.Key.Key_Left:
             camera0.position.x -= .25
             self._render()
-        if e.key() == QtCore.Qt.Key.Key_D:
+        if e.key() == QtCore.Qt.Key.Key_Right:
             camera0.position.x += .25
             self._render()
+        if e.key() == QtCore.Qt.Key.Key_Up:
+            camera0.position.y += .25
+            self._render()
+        if e.key() == QtCore.Qt.Key.Key_Down:
+            camera0.position.y -= .25
+            self._render()
+        
 
 lab = MainWindow()
 
