@@ -9,5 +9,7 @@ include/
 lib/
 pyvenv.cfg
 
+.giraffe
+
 
 

@@ -62,17 +62,17 @@ def array2qpixmap(img_array):
 
 
 # Point light position
-light0 = Light(vec3(5, 5, 3), 1.0)
+light0 = Light(vec3(5, 5, -10), 1.0)
 # Camera position       
-camera0 = Camera(vec3(0, 0.3, -1))
+camera0 = Camera(vec3(0, -0.35, -0.35))
 # objects in the scene
 scene = [
     Sphere(vec3(.75, .1, 1), .6, vec3(0, 0, 1)),
     Sphere(vec3(-.75, .1, 2.25), .6, vec3(.5, .223, .5)),
     Sphere(vec3(-2.75, .1, 3.5), .6, vec3(1, .572, .184)),
     CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(.75, .75, .75), 0.25),
-    # Plane(vec3(.75,.1, 5), vec3(1,0,1), vec3(1.,0.,1.), reflection=0.0)  # Point Normal DiffuseColor
-    # Disc(vec3(0,0.5, 0), vec3(0,1,0), 1.0, vec3(0.,1.,0.), reflection=0.0)  # Point Normal DiffuseColor
+    # Plane(vec3(.75,.1, 5), vec3(1,0,1), vec3(1.,0.,1.), reflection=0.0),  # Point Normal DiffuseColor
+    Disc(vec3(0,0.5, 0), vec3(0,1,0), 0.1, vec3(0.,1.,0.), reflection=0.5)  # Point Normal DiffuseColor
     ]
 
 
@@ -115,25 +115,16 @@ class MainWindow(QLabel):
         if e.key() == QtCore.Qt.Key_Escape:
             self.close()
         if e.key() == QtCore.Qt.Key.Key_W:
-            for s in scene:
-                s.c.z -= .25
-            # camera0.position.z -= .25
+            camera0.position.z += .25
             self._render()
         if e.key() == QtCore.Qt.Key.Key_S:
-            for s in scene:
-                s.c.z += .25
-            # camera0.position.z += .25
-
+            camera0.position.z -= .25
             self._render()
         if e.key() == QtCore.Qt.Key.Key_A:
-            # camera0.position.x += .25
-            for s in scene:
-                s.c.x += .25
+            camera0.position.x -= .25
             self._render()
         if e.key() == QtCore.Qt.Key.Key_D:
-            for s in scene:
-                s.c.x -= .25
-            # camera0.position.x -= .25
+            camera0.position.x += .25
             self._render()
 
 lab = MainWindow()
