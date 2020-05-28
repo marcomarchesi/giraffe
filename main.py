@@ -63,23 +63,26 @@ def array2qpixmap(img_array):
 
 
 # Point light position
-light0 = Light(vec3(5, 3, -10), 1.0)
+light0 = Light(vec3(5, 3, -10), 0.1)
 # Camera position       
 camera0 = Camera(vec3(0, 0, 0), args.focal_length)
 # objects in the scene
+'''
+format of each scene:
+camera: [px,py,pz,f]
+light: [px,py,pz,i]
+sphere: [px,py,pz, r, cr,cg,cb, rf]
+rt_array: (w,h,3)
+'''
 scene = [
     Sphere(vec3(.75, .1, 1), .6, vec3(0, 1, 1)),
     Sphere(vec3(-.75, .1, 2.25), .6, vec3(0, 1, .6)),
     Sphere(vec3(-2.75, .1, 3.5), .6, vec3(0, 1, .2)),
     CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.25),
-    # Plane(vec3(.75,.1, 5), vec3(0,1,1), vec3(1.,1.,1.), reflection=.25),  # Point Normal DiffuseColor
-    # Disc(vec3(0, .1, 2), vec3(1,1,1), 1., vec3(0.,1.,1.), reflection=0.)  # Point Normal DiffuseColor
     ]
 
 
-# factor = 10
 size = (width, height)
-# preview_size = np.divide(size, factor).astype(np.uint8)
 
 class MainWindow(QLabel):
 
@@ -93,7 +96,6 @@ class MainWindow(QLabel):
         
         self.setWindowTitle("Giraffe")
         rgb = render(size, scene, camera0, light0)
-        # zoomed_rgb = preview(rgb)
         self.setPixmap(array2qpixmap(rgb))
         self.resize(width, height)
 
@@ -107,7 +109,6 @@ class MainWindow(QLabel):
     def _render(self):
         timer = TicToc()
         rgb = render(size, scene, camera0, light0)
-        # zoomed_rgb = preview(rgb)
         self.setPixmap(array2qpixmap(rgb))
         self.label.setText(str(timer.now) + "s")
         

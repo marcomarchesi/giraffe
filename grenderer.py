@@ -26,8 +26,8 @@ def render(size, scene, camera, light):
     color = raytrace(camera.position, 
                     (Q - camera.position).norm(), 
                     scene, 
-                    light.position, 
-                    camera.position)
+                    light, 
+                    camera)
 
     # convert into a numpy array [w,h,c]
     rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c in color.components()], axis=2)

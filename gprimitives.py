@@ -13,6 +13,7 @@ class Camera:
 class Light:
     def __init__(self, position, intensity):
         self.position = position
+        self.intensity = intensity
 
 class Primitive:    
     def diffusecolor(self, M):
@@ -37,7 +38,7 @@ class Primitive:
 
         # Lambert shading (diffuse)
         lv = np.maximum(N.dot(toL), 0)
-        color += self.diffusecolor(M) * lv * seelight
+        color += self.diffusecolor(M) * lv * seelight * light.intensity
 
         # Reflection
         if bounce < 5:
@@ -73,8 +74,8 @@ class Sphere (Primitive):
         M = (O + D * d)                         # intersection point
         N = (M - self.c) * (1. / self.r)        # normal
 
-        toL = (light - M).norm()                    # direction to light
-        toO = (camera - M).norm()                    # direction to ray origin
+        toL = (light.position - M).norm()                    # direction to light
+        toO = (camera.position - M).norm()                    # direction to ray origin
         nudged = M + N * .0001                  # M nudged to avoid itself
 
         # Shadow: find if the point is shadowed or not.
@@ -88,7 +89,7 @@ class Sphere (Primitive):
 
         # Lambert shading (diffuse)
         lv = np.maximum(N.dot(toL), 0)
-        color += self.diffusecolor(M) * lv * seelight
+        color += self.diffusecolor(M) * lv * seelight * light.intensity
 
         # Reflection
         if bounce < 5:

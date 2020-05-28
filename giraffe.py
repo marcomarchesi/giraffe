@@ -56,5 +56,5 @@ def show_logo(build, version):
     print(colored('b{} v{}'.format(build, version), 'green'))
 
 if __name__ == "__main__":
-    if sys.argv[1] != None:
+    if len(sys.argv) > 1:
         giraffe = Giraffe(sys.argv[1])
