@@ -3,6 +3,7 @@
 from termcolor import colored
 import yaml
 import os
+import sys
 
 logo = '''
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -35,15 +36,15 @@ class Giraffe:
     '''
 Here to setup the build
     '''
-    def __init__(self):
+    def __init__(self, version=0.1):
         self.build = 0
-        self.version = 0.1
-
+        self.version = version
         path = '.giraffe'
         with open(path, 'r+') as f:
             config = yaml.load(f, Loader = yaml.FullLoader)
             self.build = config['build'] + 1
             config = {'build':self.build,'version':self.version}
+        # write the update .giraffe version
         with open(path, 'w+') as f:
             f.write(yaml.dump(config))
     
@@ -53,3 +54,7 @@ Here to setup the build
 def show_logo(build, version):
     # print(colored(logo, 'yellow'))
     print(colored('b{} v{}'.format(build, version), 'green'))
+
+if __name__ == "__main__":
+    if sys.argv[1] != None:
+        giraffe = Giraffe(sys.argv[1])
