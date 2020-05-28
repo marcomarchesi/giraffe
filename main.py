@@ -63,7 +63,7 @@ def array2qpixmap(img_array):
 
 
 # Point light position
-light0 = Light(vec3(5, 3, -10), 0.1)
+light0 = Light(vec3(-5, 3, -10), 0.1)
 # Camera position       
 camera0 = Camera(vec3(0, 0, 0), args.focal_length)
 # objects in the scene
@@ -134,6 +134,12 @@ class MainWindow(QLabel):
             self._render()
         if e.key() == QtCore.Qt.Key.Key_Down:
             camera0.position.y -= .25
+            self._render()
+        if e.key() == QtCore.Qt.Key.Key_J:
+            light0.intensity -= .25
+            self._render()
+        if e.key() == QtCore.Qt.Key.Key_K:
+            light0.intensity += .25
             self._render()
         
 
