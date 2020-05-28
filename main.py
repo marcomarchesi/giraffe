@@ -32,6 +32,7 @@ Arguments
 parser = ArgumentParser()
 parser.add_argument('--image-width', default=800)
 parser.add_argument('--image-height', default=400)
+parser.add_argument('--focal-length', default=0.5)
 args = parser.parse_args()
 
 
@@ -62,17 +63,17 @@ def array2qpixmap(img_array):
 
 
 # Point light position
-light0 = Light(vec3(5, 5, -10), 1.0)
+light0 = Light(vec3(5, 3, -10), 1.0)
 # Camera position       
-camera0 = Camera(vec3(0, 0, 0))
+camera0 = Camera(vec3(0, 0, 0), args.focal_length)
 # objects in the scene
 scene = [
-    Sphere(vec3(.75, .1, 1), .6, vec3(0, 0, 1)),
-    Sphere(vec3(-.75, .1, 2.25), .6, vec3(.5, .223, .5)),
-    Sphere(vec3(-2.75, .1, 3.5), .6, vec3(1, .572, .184)),
-    CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(.75, .75, .75), 0.25),
-    # Plane(vec3(.75,.1, 5), vec3(1,0,1), vec3(1.,0.,1.), reflection=0.0),  # Point Normal DiffuseColor
-    Disc(vec3(0,0.5, 0), vec3(0,1,0), 0.1, vec3(0.,1.,0.), reflection=0.5)  # Point Normal DiffuseColor
+    Sphere(vec3(.75, .1, 1), .6, vec3(0, 1, 1)),
+    Sphere(vec3(-.75, .1, 2.25), .6, vec3(0, 1, .6)),
+    Sphere(vec3(-2.75, .1, 3.5), .6, vec3(0, 1, .2)),
+    CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.25),
+    # Plane(vec3(.75,.1, 5), vec3(0,1,1), vec3(1.,1.,1.), reflection=.25),  # Point Normal DiffuseColor
+    # Disc(vec3(0, .1, 2), vec3(1,1,1), 1., vec3(0.,1.,1.), reflection=0.)  # Point Normal DiffuseColor
     ]
 
 
@@ -112,6 +113,7 @@ class MainWindow(QLabel):
         
     def keyPressEvent(self, e):
         
+        # TODO any other way to do this elegantly?
         if e.key() == QtCore.Qt.Key_Escape:
             self.close()
         if e.key() == QtCore.Qt.Key.Key_W:
@@ -142,10 +144,9 @@ gui_app.exec_()
 
 '''
 TODO 
-- realtime preview
-- camera interaction (with keys)
-- transparency
-- refraction
-- triangle-ray intersection
+- create dataset
+- neural raytracer
+- train
+- test
 
 '''
