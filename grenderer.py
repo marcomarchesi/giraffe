@@ -33,7 +33,7 @@ def render(size, scene, camera, light):
     rgb = np.stack([(255 * np.clip(c, 0, 1).reshape((h, w))).astype(np.uint8) for c in color.components()], axis=2)
 
     # stop tracking rendering time
-    print("Rendered in {}s.".format(timer.now))
+    # print("Rendered in {}s.".format(timer.now))
 
     return rgb
 

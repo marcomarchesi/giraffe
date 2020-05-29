@@ -3,3 +3,5 @@ pillow
 numpy
 PySide2
 pyyaml
+h5py
+tqdm
