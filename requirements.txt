@@ -5,3 +5,4 @@ PySide2
 pyyaml
 h5py
 tqdm
+torch

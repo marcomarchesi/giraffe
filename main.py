@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 
 from argparse import ArgumentParser
-from giraffe import show_logo, Giraffe
+from giraffe import show_logo, Giraffe, show_build
 from gmath import vec3
 from gprimitives import Light, Camera, Sphere, CheckeredSphere
 from grenderer import render, preview

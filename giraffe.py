@@ -36,13 +36,14 @@ class Giraffe:
     '''
 Here to setup the build
     '''
-    def __init__(self, version=0.1):
+    def __init__(self):
         self.build = 0
-        self.version = version
+        self.version = 0
         path = '.giraffe'
         with open(path, 'r+') as f:
             config = yaml.load(f, Loader = yaml.FullLoader)
             self.build = config['build'] + 1
+            self.version = config['version']
             config = {'build':self.build,'version':self.version}
         # write the update .giraffe version
         with open(path, 'w+') as f:
@@ -50,10 +51,19 @@ Here to setup the build
     
     def update_version(self, version):
         self.version = version
+        path = '.giraffe'
+        with open(path, 'r+') as f:
+            config = yaml.load(f, Loader = yaml.FullLoader)
+            config = {'build':self.build,'version':self.version}
+        # write the update .giraffe version
+        with open(path, 'w+') as f:
+            f.write(yaml.dump(config))
 
 def show_logo(build, version):
-    # print(colored(logo, 'yellow'))
-    print(colored('b{} v{}'.format(build, version), 'green'))
+    print(colored(logo, 'yellow'))
+
+def show_build(app):
+    print(colored('b{} v{}'.format(app.build, app.version), 'green'))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
