@@ -13,6 +13,8 @@ from tqdm import tqdm
 from PIL import Image
 from giraffe import Giraffe
 
+from torch.utils.data import Dataset
+
 # app = Giraffe()
 
 parser = ArgumentParser()
@@ -87,16 +89,45 @@ def load_scene(s):
         CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.25),
     ]
 
-def load_dataset():
-    with h5py.File("dataset.hdf5", "r") as f:
+# TODO merge with the class RayTracingDataset
+def load_dataset(path):
+    with h5py.File(path, "r") as f:
         rgb = np.array(f["renders"])
         scenes = np.array(f["scenes"])
         # print(scenes[0])
         # for img in rgb:
         #     im = Image.fromarray(img)
         #     im.show()
+        return scenes, rgb
+
+class RayTracingDataset(Dataset):
+
+    def __init__(self, scenes, renders, transform=None):
+        '''
+        Args:
+            scenes (Numpy array)
+            renders (Numpy array)
+            transform (callable, optional)
+        '''
+        self.scenes = scenes
+        self.renders = renders
+        self.transform = transform
+    
+    def __len__(self):
+        return len(self.scenes)
+    
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        
+        sample = {'scene': self.scenes[idx],
+                  'render': self.renders[idx]}
+
+        return sample
+
 
 if __name__ == "__main__":
+    pass
     # generate_dataset()
     # load_dataset()
     

@@ -1,8 +1,9 @@
-termcolor
-pillow
-numpy
-PySide2
-pyyaml
-h5py
-tqdm
-torch
+termcolor==1.1.0
+Pillow==7.1.2
+numpy==1.18.4
+PySide2==5.14.2.1
+PyYAML==5.3.1
+h5py==2.10.0
+tqdm==4.46.0
+torch==1.5.0
+torchvision==0.6.0
