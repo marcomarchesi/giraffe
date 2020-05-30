@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 import h5py
 from tqdm import tqdm
 from PIL import Image
-from giraffe import Giraffe
+from giraffe import Giraffe, todo, timer
 
 import torch
 from torch.utils.data import Dataset
@@ -66,19 +66,19 @@ def generate_scene():
     ]
     return data, scene, camera, light
 
-
+@timer
 def generate_dataset():
 
     with h5py.File("dataset.hdf5", "w") as f:
         data_array = []
         rgb_array = []
-        for _ in tqdm(range(1000)):
+        for _ in tqdm(range(50)):
             data, scene, camera, light = generate_scene()
             rgb = render(size, scene, camera, light)
             data_array.append(data)
             rgb_array.append(rgb)
-        f.create_dataset("scenes", data=data_array)
-        f.create_dataset("renders", data=rgb_array)
+        f.create_dataset("scenes", data=data_array, compression='gzip', compression_opts=9)
+        f.create_dataset("renders", data=rgb_array, compression='gzip', compression_opts=9)
 
 def load_scene(s):
     camera = Camera(vec3(s[0], s[1], s[2]), s[3])
@@ -128,7 +128,7 @@ class RayTracingDataset(Dataset):
 
 
 if __name__ == "__main__":
-    pass
-    # generate_dataset()
+    # pass
+    generate_dataset()
     # load_dataset()
     

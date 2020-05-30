@@ -64,22 +64,23 @@ optimizer = torch.optim.Adam(
     weight_decay=1e-5
 )
 
-# def to_img(x):
-#     x = 0.5 * (x + 1)
-#     x = x.clamp(0, 1)
-#     x = x.view(x.size(0), 1, , 28)
-#     return x
 
 for epoch in range(num_epochs):
     for data in train_loader:
 
+        render = torch.tensor(np.random.random((batch_size, 256*256*3)))
+        scene = torch.tensor(np.random.random((batch_size, 29)))
+
+        render.to(device)
+        scene.to(device)
         
-        render = np.reshape(data['render'], (batch_size, 256 * 256 * 3))
+        # render = np.reshape(data['render'], (batch_size, 256 * 256 * 3))
+        # scene = data['scene']
 
         # render = render.view(render.size(0), -1)
         # render = Variable(render).to(device)
-        output = model(data['scene'])
-        
+        output = model(scene)
+
         loss = criterion(output, render)
 
         optimizer.zero_grad()

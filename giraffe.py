@@ -4,6 +4,7 @@ from termcolor import colored
 import yaml
 import os
 import sys
+import time
 
 logo = '''
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -64,6 +65,20 @@ def show_logo(build, version):
 
 def show_build(app):
     print(colored('b{} v{}'.format(app.build, app.version), 'green'))
+
+# decorators
+def todo(func):
+    def wrapper():
+        print("TODO")
+        func()
+    return wrapper
+
+def timer(func):
+    def wrapper():
+        start_time = time.time()
+        func()
+        print("Elapsed time: {:.2f}s.".format(time.time() - start_time))
+    return wrapper
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
