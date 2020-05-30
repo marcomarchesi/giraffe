@@ -13,6 +13,7 @@ from tqdm import tqdm
 from PIL import Image
 from giraffe import Giraffe
 
+import torch
 from torch.utils.data import Dataset
 
 # app = Giraffe()
