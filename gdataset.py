@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 import h5py
 from tqdm import tqdm
 from PIL import Image
-from giraffe import Giraffe, todo, timer
+from giraffe import Giraffe, TODO, timer
 
 import torch
 from torch.utils.data import Dataset
@@ -22,6 +22,7 @@ parser = ArgumentParser()
 parser.add_argument('--image-width', default=256)
 parser.add_argument('--image-height', default=256)
 parser.add_argument('--focal-length', default=1.0)
+parser.add_argument('--size', default=10)
 args = parser.parse_args()
 
 
@@ -67,12 +68,12 @@ def generate_scene():
     return data, scene, camera, light
 
 @timer
-def generate_dataset():
+def generate_dataset(dataset_size):
 
     with h5py.File("dataset.hdf5", "w") as f:
         data_array = []
         rgb_array = []
-        for _ in tqdm(range(50)):
+        for _ in tqdm(range(dataset_size)):
             data, scene, camera, light = generate_scene()
             rgb = render(size, scene, camera, light)
             data_array.append(data)
@@ -90,7 +91,7 @@ def load_scene(s):
         CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.25),
     ]
 
-# TODO merge with the class RayTracingDataset
+@TODO("to merge with the model")
 def load_dataset(path):
     with h5py.File(path, "r") as f:
         rgb = np.array(f["renders"])
@@ -129,6 +130,6 @@ class RayTracingDataset(Dataset):
 
 if __name__ == "__main__":
     # pass
-    generate_dataset()
+    generate_dataset(args.size)
     # load_dataset()
     

@@ -5,6 +5,7 @@ import yaml
 import os
 import sys
 import time
+from functools import wraps
 
 logo = '''
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -32,6 +33,27 @@ logo = '''
 /*****/*(((#(((%&&&&&&*,,,,,,,,,,,,,,..,**,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 %%%%%((&@@&&#*/%&@(,,,,,,,,,,,,,,,,,,,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 '''
+
+# decorators
+def TODO(arg1):
+    def inner_function(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            print("TODO: " + colored("{}".format(func.__name__), 'magenta') + 
+                    colored(" {}".format(arg1),'yellow'))
+            values = func(*args, **kwargs)
+            return values
+        return wrapper
+    return inner_function
+
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        value = func(*args, **kwargs)
+        print("Elapsed time: {:.2f}s.".format(time.time() - start_time))
+        return value
+    return wrapper
 
 class Giraffe:
     '''
@@ -65,20 +87,6 @@ def show_logo(build, version):
 
 def show_build(app):
     print(colored('b{} v{}'.format(app.build, app.version), 'green'))
-
-# decorators
-def todo(func):
-    def wrapper():
-        print("TODO")
-        func()
-    return wrapper
-
-def timer(func):
-    def wrapper():
-        start_time = time.time()
-        func()
-        print("Elapsed time: {:.2f}s.".format(time.time() - start_time))
-    return wrapper
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
