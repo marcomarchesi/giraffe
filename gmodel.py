@@ -23,7 +23,7 @@ class RayTracingDecoder(nn.Module):
         x = self.decoder(x)
         return x
 
-@todo
+@todo("to change completely")
 class autoencoder(nn.Module):
     def __init__(self):
         super(autoencoder, self).__init__()

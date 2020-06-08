@@ -5,7 +5,7 @@ gprimitives
 import numpy as np
 from gmath import FARAWAY, vec3, extract
 from functools import reduce
-from giraffe import todo
+from giraffe import todo, TODO
 
 class Camera:
     def __init__(self, position, focal_length=0.5):
@@ -19,7 +19,7 @@ class Light:
 class Primitive:    
     def diffusecolor(self, M):
         return self.diffuse
-    
+
 class Sphere (Primitive):
     def __init__(self, center, r, diffuse, reflection=0.5):
         self.diffuse = diffuse
