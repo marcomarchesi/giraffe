@@ -25,6 +25,7 @@ from giraffe import show_logo, Giraffe, show_build
 from gmath import vec3
 from gprimitives import Light, Camera, Sphere, CheckeredSphere
 from grenderer import render, preview
+from gdataset import generate_scene
 
 from gutils import TicToc
 
@@ -35,8 +36,8 @@ Arguments
 '''
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=256)
-parser.add_argument('--image-height', default=256)
+parser.add_argument('--image-width', default=64)
+parser.add_argument('--image-height', default=64)
 parser.add_argument('--focal-length', default=0.5)
 args = parser.parse_args()
 
@@ -49,6 +50,7 @@ size = (width, height)
 # increment the build number
 app = Giraffe()
 show_logo(app.build, app.version)
+show_build(app)
 
 # Visualisation on PySide
 gui_app = QApplication(sys.argv)
@@ -81,13 +83,15 @@ scene = [
     ]
 '''
 
+
+
 class MainWindow(QLabel):
 
     def __init__(self):
         super(MainWindow, self).__init__()
         self.label = QLabel(self)
         
-        self.scene, self.camera0, self.light0 = generate_scene()
+        _, self.scene, self.camera0, self.light0 = generate_scene()
         self.initUI()
         
     def initUI(self):      
@@ -109,8 +113,6 @@ class MainWindow(QLabel):
         rgb = render(size, self.scene, self.camera0, self.light0)
         self.setPixmap(array2qpixmap(rgb))
         self.label.setText(str(timer.now) + "s")
-        # print([s.c for s in self.scene])
-        # print(self.camera0.position)
         return self.scene, self.light0, self.camera0
         
     def keyPressEvent(self, e):
@@ -143,7 +145,7 @@ class MainWindow(QLabel):
             self.light0.intensity += .25
             self._render()
         if e.key() == QtCore.Qt.Key.Key_G:
-            self.scene, self.camera0, self.light0 = generate_scene()
+            _, self.scene, self.camera0, self.light0 = generate_scene()
             self._render()
         
 

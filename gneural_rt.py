@@ -16,7 +16,7 @@ import numpy as np
 
 
 parser = ArgumentParser()
-parser.add_argument('--dataset-path', default='data/dataset_10000.hdf5')
+parser.add_argument('--dataset-path', default='data/dataset_20000.hdf5')
 parser.add_argument('--split-factor', default=0.8)
 args = parser.parse_args()
 
@@ -24,13 +24,8 @@ args = parser.parse_args()
 app = Giraffe()
 show_build(app)
 
-# @TODO("yep!")
-# def hello_world(arg1):
-#     print("hello" + arg1)
-#     return arg1
-# phrase = hello_world("world")
-# print(phrase)
-# exit()
+exit()
+
 
 # load the dataset
 scenes, rgb = load_dataset(args.dataset_path)

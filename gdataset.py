@@ -5,7 +5,7 @@ gdataset.py
 import random
 import numpy as np
 from gmath import vec3
-from gprimitives import Light, Camera, Sphere, CheckeredSphere
+from gprimitives import Light, Camera, Sphere, CheckeredSphere, Plane
 from grenderer import render, preview
 from argparse import ArgumentParser
 import h5py
@@ -19,10 +19,10 @@ from torch.utils.data import Dataset
 # app = Giraffe()
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=256)
-parser.add_argument('--image-height', default=256)
+parser.add_argument('--image-width', default=64)
+parser.add_argument('--image-height', default=64)
 parser.add_argument('--focal-length', default=1.0)
-parser.add_argument('--size', default=10)
+parser.add_argument('--size', default=20000)
 args = parser.parse_args()
 
 
@@ -37,34 +37,32 @@ light: [px,py,pz,i]
 sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
-def generate_scene():
-    cam_x = random.uniform(-5.,5.)
-    cam_y = random.uniform(-.1, 5.)
-    cam_z = random.uniform(-5.,0.)
-    f = random.uniform(0.35, 0.7)
-    lx = random.uniform(-5.,5.)
-    ly = random.uniform(1.,15.)
-    lz = random.uniform(-5.,5.)
+def generate_scene(spheres=10):
+    cam_x = 0.
+    cam_y = 1.
+    cam_z = 0.5
+    f = 0.5
+    lx = -4.
+    ly = 13.
+    lz = -4.
+
     i = random.uniform(0.6,1.2)
-    radius = [random.uniform(0.1,2.) for _ in range(3)]
-    xs = [random.uniform(-5.,5.) for _ in range(3)]
-    ys = [random.uniform(.1, 3.) for _ in range(3)]
-    zs = [random.uniform(0.1,5.) for _ in range(3)]
-    cs = [random.uniform(0.0, 1.0) for _ in range(9)]
+    radius = [random.uniform(0.1,2.5) for _ in range(spheres)]
+    xs = [random.uniform(-3.5,3.5) for _ in range(spheres)]
+    ys = [random.uniform(-1., 5.) for _ in range(spheres)]
+    zs = [random.uniform(3.,5.) for _ in range(spheres)]
+    cs = [random.uniform(0.0, 1.0) for _ in range(spheres * 3)]
 
     camera = Camera(vec3(cam_x, cam_y, cam_z), f)
     light = Light(vec3(lx, ly, lz), i)
     scene = [
-        Sphere(vec3(xs[0], ys[0], zs[0]), radius[0], vec3(cs[0], cs[1], cs[2])),
-        Sphere(vec3(xs[1], ys[1], zs[1]), radius[1], vec3(cs[3], cs[4], cs[5])),
-        Sphere(vec3(xs[2], ys[2], zs[2]), radius[2], vec3(cs[6], cs[7], cs[8])),
-        CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.25),
+        Sphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.1)
     ]
-    data = [cam_x, cam_y, cam_z, f, lx, ly, lz, i,
-            xs[0], ys[0], zs[0], radius[0], cs[0], cs[1], cs[2],
-            xs[1], ys[1], zs[1], radius[1], cs[3], cs[4], cs[5],
-            xs[2], ys[2], zs[2], radius[2], cs[6], cs[7], cs[8]
-    ]
+    data = [cam_x, cam_y, cam_z, f, lx, ly, lz, i]
+    for i in range(spheres):
+        scene.append(Sphere(vec3(xs[i], ys[i], zs[i]), radius[i], vec3(cs[3 * i], cs[(3 * i) + 1], cs[(3 * i) + 2])))
+        data.extend([xs[i], ys[i], zs[i], radius[i], cs[3 * i], cs[(3 * i) + 1], cs[(3 * i) + 2]])
+
     return data, scene, camera, light
 
 @timer
@@ -74,7 +72,7 @@ def generate_dataset(dataset_size):
         data_array = []
         rgb_array = []
         for _ in tqdm(range(dataset_size)):
-            data, scene, camera, light = generate_scene()
+            data, scene, camera, light = generate_scene(spheres=10)
             rgb = render(size, scene, camera, light)
             data_array.append(data)
             rgb_array.append(rgb)

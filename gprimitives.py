@@ -5,6 +5,7 @@ gprimitives
 import numpy as np
 from gmath import FARAWAY, vec3, extract
 from functools import reduce
+from giraffe import todo
 
 class Camera:
     def __init__(self, position, focal_length=0.5):
@@ -19,7 +20,6 @@ class Primitive:
     def diffusecolor(self, M):
         return self.diffuse
     
-
 class Sphere (Primitive):
     def __init__(self, center, r, diffuse, reflection=0.5):
         self.diffuse = diffuse
@@ -73,6 +73,54 @@ class CheckeredSphere(Sphere):
     def diffusecolor(self, M):
         checker = ((M.x * 2).astype(int) % 2) == ((M.z * 2).astype(int) % 2)
         return self.diffuse * checker
+
+class Plane (Primitive):
+    def __init__(self, center, normal, diffuse, reflection=0.5):
+        self.diffuse = diffuse
+        self.reflection = reflection
+        self.c = center
+        self.normal = normal
+        self.r = 1.0
+
+    def intersect(self, O, D):
+        PO = self.c - O
+        num = PO.dot(self.normal)
+        den = D.dot(self.normal)
+        h = num / den
+        pred = den > 1e-6
+        return np.where(pred, h, FARAWAY)
+    
+    def light(self, O, D, d, scene, light, camera, bounce):
+        M = (O + D * d)                         # intersection point
+        N = self.normal
+
+        toL = (light.position - M).norm()                    # direction to light
+        toO = (camera.position - M).norm()                    # direction to ray origin
+        nudged = M + N * .0001                  # M nudged to avoid itself
+
+        # Shadow: find if the point is shadowed or not.
+        # This amounts to finding out if M can see the light
+        light_distances = [s.intersect(nudged, toL) for s in scene]
+        light_nearest = reduce(np.minimum, light_distances)
+        seelight = light_distances[scene.index(self)] == light_nearest
+
+        # Ambient
+        color = vec3(0.05, 0.05, 0.05)
+
+        # Lambert shading (diffuse)
+        lv = np.maximum(N.dot(toL), 0)
+        color += self.diffusecolor(M) * lv * seelight
+
+        # Reflection
+        if bounce < 5:
+            rayD = (D - N * 2 * D.dot(N)).norm()
+            color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
+
+        # Blinn-Phong shading (specular)
+        phong = N.dot((toL + toO).norm())
+        color += vec3(1, 1, 1) * np.power(np.clip(phong, 0, 1), 50) * seelight
+        return color
+
 
 
 def raytrace(O, D, scene, light, camera, bounce = 0):
