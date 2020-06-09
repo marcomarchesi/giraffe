@@ -36,9 +36,9 @@ Arguments
 '''
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=64)
-parser.add_argument('--image-height', default=64)
-parser.add_argument('--focal-length', default=0.5)
+parser.add_argument('--image-width', default=256)
+parser.add_argument('--image-height', default=256)
+parser.add_argument('--focal-length', default=1.0)
 args = parser.parse_args()
 
 

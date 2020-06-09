@@ -19,10 +19,10 @@ from torch.utils.data import Dataset
 # app = Giraffe()
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=64)
-parser.add_argument('--image-height', default=64)
+parser.add_argument('--image-width', default=128)
+parser.add_argument('--image-height', default=128)
 parser.add_argument('--focal-length', default=1.0)
-parser.add_argument('--size', default=20000)
+parser.add_argument('--size', default=50000)
 args = parser.parse_args()
 
 
