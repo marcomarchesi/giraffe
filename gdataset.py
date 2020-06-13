@@ -12,6 +12,8 @@ import h5py
 from tqdm import tqdm
 from PIL import Image
 from giraffe import Giraffe, TODO, timer
+import os
+import pickle
 
 import torch
 from torch.utils.data import Dataset
@@ -19,10 +21,11 @@ from torch.utils.data import Dataset
 # app = Giraffe()
 
 parser = ArgumentParser()
+parser.add_argument('--path', default='data/images')
 parser.add_argument('--image-width', default=128)
 parser.add_argument('--image-height', default=128)
 parser.add_argument('--focal-length', default=1.0)
-parser.add_argument('--size', default=50000)
+parser.add_argument('--size', default=1)
 args = parser.parse_args()
 
 
@@ -37,7 +40,7 @@ light: [px,py,pz,i]
 sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
-def generate_scene(spheres=10):
+def generate_scene(spheres=7):
     cam_x = 0.
     cam_y = 1.
     cam_z = 0.5
@@ -78,6 +81,27 @@ def generate_dataset(dataset_size):
             rgb_array.append(rgb)
         f.create_dataset("scenes", data=data_array, compression='gzip', compression_opts=9)
         f.create_dataset("renders", data=rgb_array, compression='gzip', compression_opts=9)
+
+@TODO("working on this")
+def generate_label(data):
+    pass
+
+
+@timer
+def save_dataset(dataset_size):
+
+    rgb_array = []
+    for index in tqdm(range(dataset_size)):
+        data, scene, camera, light = generate_scene()
+        rgb = render(size, scene, camera, light)
+        print(rgb.shape)
+        rgb_img = Image.fromarray(rgb)
+        rgb_path = os.path.join(args.path, str(index) + '.png')
+        rgb_img.save(rgb_path)
+        rgb_array.append(data)
+    with open('data/images.pkl', 'wb') as f:
+        pickle.dump(rgb_array, f)
+
 
 def load_scene(s):
     camera = Camera(vec3(s[0], s[1], s[2]), s[3])
@@ -128,6 +152,7 @@ class RayTracingDataset(Dataset):
 
 if __name__ == "__main__":
     # pass
-    generate_dataset(args.size)
+    # generate_dataset(args.size)
+    save_dataset(args.size)
     # load_dataset()
     

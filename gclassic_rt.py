@@ -49,8 +49,6 @@ size = (width, height)
 # start with this
 # increment the build number
 app = Giraffe()
-show_logo(app.build, app.version)
-show_build(app)
 
 # Visualisation on PySide
 gui_app = QApplication(sys.argv)

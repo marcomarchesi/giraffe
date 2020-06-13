@@ -35,6 +35,23 @@ logo = '''
 %%%%%((&@@&&#*/%&@(,,,,,,,,,,,,,,,,,,,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 '''
 
+
+# singleton
+class Singleton:
+   __instance = None
+   @staticmethod 
+   def getInstance():
+      ''' Static access method. '''
+      if Singleton.__instance == None:
+         Singleton()
+      return Singleton.__instance
+   def __init__(self):
+      ''' Virtually private constructor. '''
+      if Singleton.__instance != None:
+         raise Exception(colored('This is a singleton!', 'red'))
+      else:
+         Singleton.__instance = self
+
 # decorators
 
 def TODO(message):
@@ -68,12 +85,12 @@ def timer(func):
         return value
     return wrapper
 
-@TODO("make it a singleton")
-class Giraffe:
+class Giraffe (Singleton):
     '''
 Here to setup the build
     '''
-    def __init__(self):
+    def __init__(self, logo=False, build=True):
+        super().__init__()
         self.build = 0
         self.version = 0
         path = '.giraffe'
@@ -85,6 +102,11 @@ Here to setup the build
         # write the update .giraffe version
         with open(path, 'w+') as f:
             f.write(yaml.dump(config))
+        # some more output
+        if logo:
+            show_logo()
+        if build:
+            show_build(self)
     
     def update_version(self, version):
         self.version = version
@@ -96,12 +118,13 @@ Here to setup the build
         with open(path, 'w+') as f:
             f.write(yaml.dump(config))
 
-def show_logo(build, version):
+def show_logo():
     print(colored(logo, 'yellow'))
 
 def show_build(app):
     print(colored('b{} v{}'.format(app.build, app.version), 'green'))
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        giraffe = Giraffe(sys.argv[1])
+    # if len(sys.argv) > 1:
+    #     giraffe = Giraffe(sys.argv[1])
+    pass

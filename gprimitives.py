@@ -60,13 +60,13 @@ class Sphere (Primitive):
         color += self.diffusecolor(M) * lv * seelight * light.intensity
 
         # Reflection
-        # if bounce < 5:
-        #     rayD = (D - N * 2 * D.dot(N)).norm()
-        #     color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
+        if bounce < 5:
+            rayD = (D - N * 2 * D.dot(N)).norm()
+            color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
 
         # Blinn-Phong shading (specular)
-        # phong = N.dot((toL + toO).norm())
-        # color += vec3(1, 1, 1) * np.power(np.clip(phong, 0, 1), 50) * seelight
+        phong = N.dot((toL + toO).norm())
+        color += vec3(1, 1, 1) * np.power(np.clip(phong, 0, 1), 50) * seelight
         return color
 
 class CheckeredSphere(Sphere):
@@ -112,13 +112,13 @@ class Plane (Primitive):
         color += self.diffusecolor(M) * lv * seelight
 
         # Reflection
-        # if bounce < 5:
-        #     rayD = (D - N * 2 * D.dot(N)).norm()
-        #     color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
+        if bounce < 5:
+            rayD = (D - N * 2 * D.dot(N)).norm()
+            color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
 
         # Blinn-Phong shading (specular)
-        # phong = N.dot((toL + toO).norm())
-        # color += vec3(1, 1, 1) * np.power(np.clip(phong, 0, 1), 50) * seelight
+        phong = N.dot((toL + toO).norm())
+        color += vec3(1, 1, 1) * np.power(np.clip(phong, 0, 1), 50) * seelight
         return color
 
 
