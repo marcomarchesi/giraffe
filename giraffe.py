@@ -3,8 +3,31 @@
 from termcolor import colored
 import yaml
 # import os
-# import sys
+import sys
 from gdesign_patterns import TODO, Singleton
+import logging
+
+'''
+logger
+'''
+logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+rootLogger = logging.getLogger()
+rootLogger.setLevel(logging.DEBUG)
+
+fileHandler = logging.FileHandler("neural_rt.log")
+fileHandler.setFormatter(logFormatter)
+rootLogger.addHandler(fileHandler)
+
+consoleHandler = logging.StreamHandler(sys.stdout)
+consoleHandler.setFormatter(logFormatter)
+rootLogger.addHandler(consoleHandler)
+
+@TODO("it's not writing to file correctly")
+def log(string):
+    return logging.debug(colored(string, 'yellow'))
+
+
+
 
 logo = '''
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

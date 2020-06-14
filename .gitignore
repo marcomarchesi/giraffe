@@ -12,6 +12,7 @@ pyvenv.cfg
 .giraffe
 *.hdf5
 data/
+*.log
 
 
 

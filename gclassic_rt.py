@@ -18,19 +18,19 @@ import sys
 import random
 import h5py
 from tqdm import tqdm
+import logging
 
 
 from argparse import ArgumentParser
-from giraffe import Giraffe
+from giraffe import Giraffe, log
 from gdesign_patterns import TODO
 from gmath import vec3
 from gprimitives import Light, Camera, Sphere, CheckeredSphere
 from grenderer import render, preview
 from gdataset import generate_scene
-
 from gutils import TicToc
-
 from PIL import Image
+
 
 '''
 Arguments
@@ -81,6 +81,8 @@ scene = [
     CheckeredSphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.25),
     ]
 '''
+
+logging.debug('start rendering')
 
 class MainWindow(QLabel):
 

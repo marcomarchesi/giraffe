@@ -14,7 +14,6 @@ from gmodel import autoencoder
 from argparse import ArgumentParser
 import numpy as np
 
-
 parser = ArgumentParser()
 parser.add_argument('--dataset-path', default='data/dataset_20000.hdf5')
 parser.add_argument('--split-factor', default=0.8)
@@ -23,9 +22,6 @@ args = parser.parse_args()
 
 app = Giraffe()
 show_build(app)
-
-exit()
-
 
 # load the dataset
 scenes, rgb = load_dataset(args.dataset_path)
