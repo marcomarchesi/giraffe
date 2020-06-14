@@ -11,7 +11,8 @@ from argparse import ArgumentParser
 import h5py
 from tqdm import tqdm
 from PIL import Image
-from giraffe import Giraffe, TODO, timer
+from giraffe import Giraffe
+from gdesign_patterns import TODO, timer
 import os
 import pickle
 
@@ -25,7 +26,7 @@ parser.add_argument('--path', default='data/images')
 parser.add_argument('--image-width', default=128)
 parser.add_argument('--image-height', default=128)
 parser.add_argument('--focal-length', default=1.0)
-parser.add_argument('--size', default=1)
+parser.add_argument('--size', default=10000)
 args = parser.parse_args()
 
 
@@ -40,7 +41,17 @@ light: [px,py,pz,i]
 sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
+
+@TODO("better normalization")
 def generate_scene(spheres=7):
+
+    Y = 13.0
+    X = 4.0
+    Z = 5.0
+    I = 1.2
+    R = 2.5
+
+
     cam_x = 0.
     cam_y = 1.
     cam_z = 0.5
@@ -61,26 +72,26 @@ def generate_scene(spheres=7):
     scene = [
         Sphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.1)
     ]
-    data = [cam_x, cam_y, cam_z, f, lx, ly, lz, i]
+    data = [cam_x, cam_y, cam_z, f, lx/X, ly/Y, lz/Z, i/I]
     for i in range(spheres):
         scene.append(Sphere(vec3(xs[i], ys[i], zs[i]), radius[i], vec3(cs[3 * i], cs[(3 * i) + 1], cs[(3 * i) + 2])))
-        data.extend([xs[i], ys[i], zs[i], radius[i], cs[3 * i], cs[(3 * i) + 1], cs[(3 * i) + 2]])
-
+        data.extend([xs[i]/X, ys[i]/Y, zs[i]/Z, radius[i]/R, cs[3 * i], cs[(3 * i) + 1], cs[(3 * i) + 2]])
+    
     return data, scene, camera, light
 
-@timer
-def generate_dataset(dataset_size):
+# @timer
+# def generate_dataset(dataset_size):
 
-    with h5py.File("dataset.hdf5", "w") as f:
-        data_array = []
-        rgb_array = []
-        for _ in tqdm(range(dataset_size)):
-            data, scene, camera, light = generate_scene(spheres=10)
-            rgb = render(size, scene, camera, light)
-            data_array.append(data)
-            rgb_array.append(rgb)
-        f.create_dataset("scenes", data=data_array, compression='gzip', compression_opts=9)
-        f.create_dataset("renders", data=rgb_array, compression='gzip', compression_opts=9)
+#     with h5py.File("dataset.hdf5", "w") as f:
+#         data_array = []
+#         rgb_array = []
+#         for _ in tqdm(range(dataset_size)):
+#             data, scene, camera, light = generate_scene()
+#             rgb = render(size, scene, camera, light)
+#             data_array.append(data)
+#             rgb_array.append(rgb)
+#         f.create_dataset("scenes", data=data_array, compression='gzip', compression_opts=9)
+#         f.create_dataset("renders", data=rgb_array, compression='gzip', compression_opts=9)
 
 @TODO("working on this")
 def generate_label(data):
@@ -94,7 +105,7 @@ def save_dataset(dataset_size):
     for index in tqdm(range(dataset_size)):
         data, scene, camera, light = generate_scene()
         rgb = render(size, scene, camera, light)
-        print(rgb.shape)
+        # print(rgb.shape)
         rgb_img = Image.fromarray(rgb)
         rgb_path = os.path.join(args.path, str(index) + '.png')
         rgb_img.save(rgb_path)
@@ -151,7 +162,6 @@ class RayTracingDataset(Dataset):
 
 
 if __name__ == "__main__":
-    # pass
     # generate_dataset(args.size)
     save_dataset(args.size)
     # load_dataset()
