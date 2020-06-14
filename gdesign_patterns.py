@@ -4,6 +4,7 @@ gdesign_patterns.py
 import time
 from functools import wraps
 import inspect
+from termcolor import colored
 
 # singleton
 class Singleton:

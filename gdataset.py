@@ -22,7 +22,8 @@ from torch.utils.data import Dataset
 # app = Giraffe()
 
 parser = ArgumentParser()
-parser.add_argument('--path', default='data/images')
+parser.add_argument('--path', default='data/root/images')
+parser.add_argument('--data-path', default='data/images.pkl')
 parser.add_argument('--image-width', default=128)
 parser.add_argument('--image-height', default=128)
 parser.add_argument('--focal-length', default=1.0)
@@ -42,14 +43,13 @@ sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
 
-@TODO("better normalization")
 def generate_scene(spheres=7):
 
-    Y = 13.0
-    X = 4.0
+    Y = 5.0
+    X = 5.0
     Z = 5.0
-    I = 1.2
-    R = 2.5
+    I = 2.0
+    R = 3.0
 
 
     cam_x = 0.
@@ -57,7 +57,7 @@ def generate_scene(spheres=7):
     cam_z = 0.5
     f = 0.5
     lx = -4.
-    ly = 13.
+    ly = 5.
     lz = -4.
 
     i = random.uniform(0.6,1.2)
@@ -72,6 +72,8 @@ def generate_scene(spheres=7):
     scene = [
         Sphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.1)
     ]
+
+    # data are sort of normalized now
     data = [cam_x, cam_y, cam_z, f, lx/X, ly/Y, lz/Z, i/I]
     for i in range(spheres):
         scene.append(Sphere(vec3(xs[i], ys[i], zs[i]), radius[i], vec3(cs[3 * i], cs[(3 * i) + 1], cs[(3 * i) + 2])))
@@ -79,27 +81,8 @@ def generate_scene(spheres=7):
     
     return data, scene, camera, light
 
-# @timer
-# def generate_dataset(dataset_size):
-
-#     with h5py.File("dataset.hdf5", "w") as f:
-#         data_array = []
-#         rgb_array = []
-#         for _ in tqdm(range(dataset_size)):
-#             data, scene, camera, light = generate_scene()
-#             rgb = render(size, scene, camera, light)
-#             data_array.append(data)
-#             rgb_array.append(rgb)
-#         f.create_dataset("scenes", data=data_array, compression='gzip', compression_opts=9)
-#         f.create_dataset("renders", data=rgb_array, compression='gzip', compression_opts=9)
-
-@TODO("working on this")
-def generate_label(data):
-    pass
-
-
 @timer
-def save_dataset(dataset_size):
+def save_dataset(dataset_size, data_path):
 
     rgb_array = []
     for index in tqdm(range(dataset_size)):
@@ -110,8 +93,14 @@ def save_dataset(dataset_size):
         rgb_path = os.path.join(args.path, str(index) + '.png')
         rgb_img.save(rgb_path)
         rgb_array.append(data)
-    with open('data/images.pkl', 'wb') as f:
+    with open(data_path, 'wb') as f:
         pickle.dump(rgb_array, f)
+
+def load_data(data_path):
+
+    with open(data_path, 'rb') as f:
+        data = pickle.load(f)
+        print(data[0])
 
 
 def load_scene(s):
@@ -163,6 +152,7 @@ class RayTracingDataset(Dataset):
 
 if __name__ == "__main__":
     # generate_dataset(args.size)
-    save_dataset(args.size)
+    # save_dataset(args.size, args.data_path)
+    load_data(args.data_path)
     # load_dataset()
     
