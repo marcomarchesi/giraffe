@@ -23,11 +23,11 @@ from torch.utils.data import Dataset
 
 parser = ArgumentParser()
 parser.add_argument('--path', default='data/root/images')
-parser.add_argument('--data-path', default='data/images.pkl')
+parser.add_argument('--data-path', default='data/images_50000.pkl')
 parser.add_argument('--image-width', default=128)
 parser.add_argument('--image-height', default=128)
 parser.add_argument('--focal-length', default=1.0)
-parser.add_argument('--size', default=10000)
+parser.add_argument('--size', default=50000)
 args = parser.parse_args()
 
 
@@ -43,7 +43,7 @@ sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
 
-def generate_scene(spheres=7):
+def generate_scene(spheres=5):
 
     Y = 5.0
     X = 5.0
@@ -100,9 +100,9 @@ def load_data(data_path):
 
     with open(data_path, 'rb') as f:
         data = pickle.load(f)
-        print(data[0])
+        print(len(data[0]))
 
-
+@TODO("deprecated")
 def load_scene(s):
     camera = Camera(vec3(s[0], s[1], s[2]), s[3])
     light = Light(vec3(s[4], s[5], s[6]), s[7])
