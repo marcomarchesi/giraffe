@@ -6,7 +6,7 @@ import random
 import numpy as np
 from gmath import vec3
 from gprimitives import Light, Camera, Sphere, CheckeredSphere, Plane
-from grenderer import render, preview
+from grenderer import render, preview, animate
 from argparse import ArgumentParser
 import h5py
 from tqdm import tqdm
@@ -22,12 +22,12 @@ from torch.utils.data import Dataset
 # app = Giraffe()
 
 parser = ArgumentParser()
-parser.add_argument('--path', default='data/root/images')
-parser.add_argument('--data-path', default='data/images_50000.pkl')
-parser.add_argument('--image-width', default=128)
-parser.add_argument('--image-height', default=128)
+parser.add_argument('--path', default='data/art/images')
+parser.add_argument('--data-path', default='data/images_100.pkl')
+parser.add_argument('--image-width', default=512)
+parser.add_argument('--image-height', default=512)
 parser.add_argument('--focal-length', default=1.0)
-parser.add_argument('--size', default=50000)
+parser.add_argument('--size', default=1)
 args = parser.parse_args()
 
 
@@ -73,6 +73,7 @@ def generate_scene(spheres=5):
         Sphere(vec3(0,-99999.5, 0), 99999, vec3(1.,1.,1.), 0.1)
     ]
 
+
     # data are sort of normalized now
     data = [cam_x, cam_y, cam_z, f, lx/X, ly/Y, lz/Z, i/I]
     for i in range(spheres):
@@ -87,14 +88,20 @@ def save_dataset(dataset_size, data_path):
     rgb_array = []
     for index in tqdm(range(dataset_size)):
         data, scene, camera, light = generate_scene()
-        rgb = render(size, scene, camera, light)
+        # rgb = render(size, scene, camera, light)
+        rgbs = animate(size, scene, camera, light)
         # print(rgb.shape)
-        rgb_img = Image.fromarray(rgb)
-        rgb_path = os.path.join(args.path, str(index) + '.png')
-        rgb_img.save(rgb_path)
-        rgb_array.append(data)
-    with open(data_path, 'wb') as f:
-        pickle.dump(rgb_array, f)
+        frame = 0
+        for rgb in rgbs:
+            rgb_img = Image.fromarray(rgb)
+            rgb_path = os.path.join(args.path, str(index) + '_' + str(frame) + '.png')
+            rgb_img.save(rgb_path)
+            # rgb_array.append(data)
+            frame += 1
+        img_path = os.path.join(args.path, "")
+        os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, str(index) + "_"), os.path.join(args.path, str(index))))
+    # with open(data_path, 'wb') as f:
+    #     pickle.dump(rgb_array, f)
 
 def load_data(data_path):
 
@@ -152,7 +159,7 @@ class RayTracingDataset(Dataset):
 
 if __name__ == "__main__":
     # generate_dataset(args.size)
-    # save_dataset(args.size, args.data_path)
-    load_data(args.data_path)
+    save_dataset(args.size, args.data_path)
+    # load_data(args.data_path)
     # load_dataset()
     

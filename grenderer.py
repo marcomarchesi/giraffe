@@ -3,6 +3,7 @@ grenderer.py
 '''
 
 import numpy as np
+import random
 from gutils import TicToc
 from gmath import vec3
 from gprimitives import raytrace
@@ -36,6 +37,40 @@ def render(size, scene, camera, light):
     # print("Rendered in {}s.".format(timer.now))
 
     return rgb
+
+def animate(size, scene, camera, light):
+    '''
+    Parameters: size, scene, camera, light
+    Returns: a sequence of images
+    '''
+    seq_length = 30
+    offset = 0.1
+    sphere_y_animations = []
+    rgbs = []
+    direction = random.randint(0,1)
+    for sphere in scene[1:]:
+        offset_randomness = random.uniform(0.3, 1.5)
+        print(offset_randomness)
+        sphere_y_anim = []
+        if direction == 0:
+            sphere_y_anim = list(np.linspace(sphere.c.y - offset * offset_randomness,sphere.c.y + offset * offset_randomness, seq_length))
+            sphere_y_anim.extend(reversed(sphere_y_anim[:-1]))
+            direction = 1
+        else:
+            sphere_y_anim = list(np.linspace(sphere.c.y + offset * offset_randomness,sphere.c.y - offset * offset_randomness, seq_length))
+            sphere_y_anim.extend(reversed(sphere_y_anim[:-1]))
+            direction = 0
+        sphere_y_animations.append(sphere_y_anim)
+        # print(len(sphere_y_anim))
+    
+    for i in range(seq_length * 2 - 1):
+        _scene = scene
+        for index, sphere in enumerate(_scene[1:]):
+            sphere.c.y = sphere_y_animations[index][i]
+        rgb = render(size, _scene, camera, light)
+        rgbs.append(rgb)
+
+    return rgbs
 
 def preview(rgb,factor=20):
     height, width, channels = rgb.shape
