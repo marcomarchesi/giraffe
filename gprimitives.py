@@ -60,7 +60,7 @@ class Sphere (Primitive):
         color += self.diffusecolor(M) * lv * seelight * light.intensity
 
         # Reflection
-        if bounce < 5:
+        if bounce < 7:
             rayD = (D - N * 2 * D.dot(N)).norm()
             color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
 
@@ -112,7 +112,7 @@ class Plane (Primitive):
         color += self.diffusecolor(M) * lv * seelight
 
         # Reflection
-        if bounce < 5:
+        if bounce < 7:
             rayD = (D - N * 2 * D.dot(N)).norm()
             color += raytrace(nudged, rayD, scene, light, camera, bounce + 1) * self.reflection
 

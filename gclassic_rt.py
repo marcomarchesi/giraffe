@@ -37,8 +37,8 @@ Arguments
 '''
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=512)
-parser.add_argument('--image-height', default=512)
+parser.add_argument('--image-width', default=1200)
+parser.add_argument('--image-height', default=800)
 parser.add_argument('--focal-length', default=1.0)
 args = parser.parse_args()
 
@@ -99,6 +99,8 @@ class MainWindow(QLabel):
         rgb = render(size, self.scene, self.camera0, self.light0)
         self.setPixmap(array2qpixmap(rgb))
         self.resize(width, height)
+        rgb_img = Image.fromarray(rgb)
+        rgb_img.save('render.png')
 
         # render time
         self.label.setGeometry(width - 100, height - 100, 250, 150)

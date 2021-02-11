@@ -22,7 +22,7 @@ from torch.utils.data import Dataset
 # app = Giraffe()
 
 parser = ArgumentParser()
-parser.add_argument('--path', default='data/art/images')
+parser.add_argument('--path', default='data/art/images_1102')
 parser.add_argument('--data-path', default='data/images_100.pkl')
 parser.add_argument('--image-width', default=512)
 parser.add_argument('--image-height', default=512)
@@ -43,7 +43,7 @@ sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
 
-def generate_scene(spheres=5):
+def generate_scene(spheres=20):
 
     Y = 5.0
     X = 5.0
@@ -61,10 +61,10 @@ def generate_scene(spheres=5):
     lz = -4.
 
     i = random.uniform(0.6,1.2)
-    radius = [random.uniform(0.1,2.5) for _ in range(spheres)]
-    xs = [random.uniform(-3.5,3.5) for _ in range(spheres)]
-    ys = [random.uniform(-1., 5.) for _ in range(spheres)]
-    zs = [random.uniform(3.,5.) for _ in range(spheres)]
+    radius = [random.uniform(0.1,1.0) for _ in range(spheres)]
+    xs = [random.uniform(-5,5) for _ in range(spheres)]
+    ys = [random.uniform(-0.5, 0.5) for _ in range(spheres)]
+    zs = [random.uniform(2.,8.) for _ in range(spheres)]
     cs = [random.uniform(0.0, 1.0) for _ in range(spheres * 3)]
 
     camera = Camera(vec3(cam_x, cam_y, cam_z), f)

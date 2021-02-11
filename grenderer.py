@@ -44,13 +44,13 @@ def animate(size, scene, camera, light):
     Returns: a sequence of images
     '''
     seq_length = 30
-    offset = 0.1
+    offset = 0.03
     sphere_y_animations = []
     rgbs = []
     direction = random.randint(0,1)
     for sphere in scene[1:]:
         offset_randomness = random.uniform(0.3, 1.5)
-        print(offset_randomness)
+        # print(offset_randomness)
         sphere_y_anim = []
         if direction == 0:
             sphere_y_anim = list(np.linspace(sphere.c.y - offset * offset_randomness,sphere.c.y + offset * offset_randomness, seq_length))
