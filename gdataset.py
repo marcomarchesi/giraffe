@@ -176,7 +176,8 @@ class RayTracingDataset(Dataset):
 
 if __name__ == "__main__":
     # generate_dataset(args.size)
-    save_dataset(args.size, args.data_path)
+    _, scene, camera0, light0 = generate_scene()
+    save_dataset(1,'data/art/images', scene, camera0, light0)
     # load_data(args.data_path)
     # load_dataset()
     
