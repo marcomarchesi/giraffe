@@ -27,7 +27,7 @@ from gdesign_patterns import TODO
 from gmath import vec3
 from gprimitives import Light, Camera, Sphere, CheckeredSphere
 from grenderer import render, preview
-from gdataset import generate_scene
+from gdataset import generate_scene, save_dataset
 from gutils import TicToc
 from PIL import Image
 
@@ -37,8 +37,8 @@ Arguments
 '''
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=1200)
-parser.add_argument('--image-height', default=800)
+parser.add_argument('--image-width', default=128)
+parser.add_argument('--image-height', default=128)
 parser.add_argument('--focal-length', default=1.0)
 args = parser.parse_args()
 
@@ -96,7 +96,7 @@ class MainWindow(QLabel):
     def initUI(self):      
         
         self.setWindowTitle("Giraffe")
-        rgb = render(size, self.scene, self.camera0, self.light0)
+        rgb = render(self.scene, self.camera0, self.light0)
         self.setPixmap(array2qpixmap(rgb))
         self.resize(width, height)
         rgb_img = Image.fromarray(rgb)
@@ -111,7 +111,7 @@ class MainWindow(QLabel):
     
     def _render(self):
         timer = TicToc()
-        rgb = render(size, self.scene, self.camera0, self.light0)
+        rgb = render(self.scene, self.camera0, self.light0)
         self.setPixmap(array2qpixmap(rgb))
         self.label.setText(str(timer.now) + "s")
         return self.scene, self.light0, self.camera0
@@ -148,6 +148,12 @@ class MainWindow(QLabel):
         if e.key() == QtCore.Qt.Key.Key_G:
             _, self.scene, self.camera0, self.light0 = generate_scene()
             self._render()
+        if e.key() == QtCore.Qt.Key.Key_R:
+            # _, self.scene, self.camera0, self.light0 = generate_scene()
+            # self._render()
+            save_dataset(1,'data/art/images_1102', self.scene, self.camera0, self.light0)
+            self._render()
+        
         
 
 lab = MainWindow()

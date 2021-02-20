@@ -43,7 +43,7 @@ sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
 
-def generate_scene(spheres=20):
+def generate_scene(spheres=100):
 
     Y = 5.0
     X = 5.0
@@ -60,11 +60,11 @@ def generate_scene(spheres=20):
     ly = 5.
     lz = -4.
 
-    i = random.uniform(0.6,1.2)
-    radius = [random.uniform(0.1,1.0) for _ in range(spheres)]
-    xs = [random.uniform(-5,5) for _ in range(spheres)]
-    ys = [random.uniform(-0.5, 0.5) for _ in range(spheres)]
-    zs = [random.uniform(2.,8.) for _ in range(spheres)]
+    i = random.uniform(0.6,1.1)
+    radius = [random.uniform(.1,.5) for _ in range(spheres)]
+    xs = [random.uniform(-8,8) for _ in range(spheres)]
+    ys = [random.uniform(-0.5, 6) for _ in range(spheres)]
+    zs = [random.uniform(.5,10.) for _ in range(spheres)]
     cs = [random.uniform(0.0, 1.0) for _ in range(spheres * 3)]
 
     camera = Camera(vec3(cam_x, cam_y, cam_z), f)
@@ -83,11 +83,13 @@ def generate_scene(spheres=20):
     return data, scene, camera, light
 
 @timer
-def save_dataset(dataset_size, data_path):
+def save_dataset(dataset_size, data_path, scene, camera, light):
 
     rgb_array = []
-    for index in tqdm(range(dataset_size)):
-        data, scene, camera, light = generate_scene()
+
+    if dataset_size == 1:
+        index = 0
+        # scene, camera, light = generate_scene()
         # rgb = render(size, scene, camera, light)
         rgbs = animate(size, scene, camera, light)
         # print(rgb.shape)
@@ -100,6 +102,21 @@ def save_dataset(dataset_size, data_path):
             frame += 1
         img_path = os.path.join(args.path, "")
         os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, str(index) + "_"), os.path.join(args.path, str(index))))
+
+    # for index in tqdm(range(dataset_size)):
+    #     data, scene, camera, light = generate_scene()
+    #     # rgb = render(size, scene, camera, light)
+    #     rgbs = animate(size, scene, camera, light)
+    #     # print(rgb.shape)
+    #     frame = 0
+    #     for rgb in rgbs:
+    #         rgb_img = Image.fromarray(rgb)
+    #         rgb_path = os.path.join(args.path, str(index) + '_' + str(frame) + '.png')
+    #         rgb_img.save(rgb_path)
+    #         # rgb_array.append(data)
+    #         frame += 1
+    #     img_path = os.path.join(args.path, "")
+    #     os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, str(index) + "_"), os.path.join(args.path, str(index))))
     # with open(data_path, 'wb') as f:
     #     pickle.dump(rgb_array, f)
 

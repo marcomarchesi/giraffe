@@ -8,9 +8,10 @@ from gutils import TicToc
 from gmath import vec3
 from gprimitives import raytrace
 
-def render(size, scene, camera, light):
+def render(scene, camera, light, size=128):
 
-    w,h = size
+    w = size
+    h = size
     # aspect ratio
     r = float(w) / h
     # Screen coordinates: x0, y0, x1, y1.
@@ -44,7 +45,7 @@ def animate(size, scene, camera, light):
     Returns: a sequence of images
     '''
     seq_length = 30
-    offset = 0.03
+    offset = 0.05
     sphere_y_animations = []
     rgbs = []
     direction = random.randint(0,1)
@@ -67,7 +68,7 @@ def animate(size, scene, camera, light):
         _scene = scene
         for index, sphere in enumerate(_scene[1:]):
             sphere.c.y = sphere_y_animations[index][i]
-        rgb = render(size, _scene, camera, light)
+        rgb = render(_scene, camera, light, size=512)
         rgbs.append(rgb)
 
     return rgbs
