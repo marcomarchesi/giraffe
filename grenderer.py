@@ -7,6 +7,10 @@ import random
 from gutils import TicToc
 from gmath import vec3
 from gprimitives import raytrace
+from tqdm import tqdm
+from functools import partial
+
+import multiprocessing
 
 def render(scene, camera, light, size=128):
 
@@ -14,6 +18,7 @@ def render(scene, camera, light, size=128):
     h = size
     # aspect ratio
     r = float(w) / h
+    # r = 1.0
     # Screen coordinates: x0, y0, x1, y1.
     S = (-1, 1 / r + .25, 1, -1 / r + .25)
     x = np.tile(np.linspace(S[0], S[2], w), h)
@@ -39,11 +44,28 @@ def render(scene, camera, light, size=128):
 
     return rgb
 
-def animate(size, scene, camera, light):
+def render_single_frame(index):
+    # frame_index, scene, camera, light, rgbs = tpl
+    # for i in range(frame_index * 2 - 1):
+    print(index)
+
+    return 0
+
+    # _scene = scene
+    # for index, sphere in enumerate(_scene[1:]):
+    #     sphere.c.y = sphere_y_animations[index][i]
+    # rgb = render(_scene, camera, light, size=512)
+    # rgbs.append(rgb)
+
+
+def animate(scene, camera, light, size, spheres):
     '''
     Parameters: size, scene, camera, light
     Returns: a sequence of images
     '''
+    # multiprocessing
+    pool = multiprocessing.Pool(4)
+
     seq_length = 30
     offset = 0.05
     sphere_y_animations = []
@@ -63,12 +85,15 @@ def animate(size, scene, camera, light):
             direction = 0
         sphere_y_animations.append(sphere_y_anim)
         # print(len(sphere_y_anim))
+
+    # arguments_tuple = (seq_length, scene, camera, light, rgbs)
+    # rgbs = zip(*pool.map(render_single_frame, range(seq_length * 2 - 1)))
     
-    for i in range(seq_length * 2 - 1):
+    for i in tqdm(range(seq_length * 2 - 1)):
         _scene = scene
         for index, sphere in enumerate(_scene[1:]):
             sphere.c.y = sphere_y_animations[index][i]
-        rgb = render(_scene, camera, light, size=512)
+        rgb = render(_scene, camera, light, size)
         rgbs.append(rgb)
 
     return rgbs

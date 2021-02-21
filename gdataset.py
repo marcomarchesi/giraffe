@@ -24,16 +24,15 @@ from torch.utils.data import Dataset
 parser = ArgumentParser()
 parser.add_argument('--path', default='data/art/images_1102')
 parser.add_argument('--data-path', default='data/images_100.pkl')
-parser.add_argument('--image-width', default=512)
-parser.add_argument('--image-height', default=512)
+parser.add_argument('--size', default=128)
 parser.add_argument('--focal-length', default=1.0)
-parser.add_argument('--size', default=1)
+parser.add_argument('--spheres', default=10)
 args = parser.parse_args()
 
 
 # size of the image to render
-(width, height) = (args.image_width, args.image_height)
-size = (width, height)  # ???
+# (width, height) = (args.image_width, args.image_height)
+size = args.size
 
 '''
 format of each scene:
@@ -43,7 +42,7 @@ sphere: [px,py,pz, r, cr,cg,cb, rf]
 rt_array: (w,h,3)
 '''
 
-def generate_scene(spheres=100):
+def generate_scene(spheres=10):
 
     Y = 5.0
     X = 5.0
@@ -83,42 +82,24 @@ def generate_scene(spheres=100):
     return data, scene, camera, light
 
 @timer
-def save_dataset(dataset_size, data_path, scene, camera, light):
+def save_dataset(data_path, scene, camera, light, size, spheres):
 
     rgb_array = []
 
-    if dataset_size == 1:
-        index = 0
-        # scene, camera, light = generate_scene()
-        # rgb = render(size, scene, camera, light)
-        rgbs = animate(size, scene, camera, light)
-        # print(rgb.shape)
-        frame = 0
-        for rgb in rgbs:
-            rgb_img = Image.fromarray(rgb)
-            rgb_path = os.path.join(args.path, str(index) + '_' + str(frame) + '.png')
-            rgb_img.save(rgb_path)
-            # rgb_array.append(data)
-            frame += 1
-        img_path = os.path.join(args.path, "")
-        os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, str(index) + "_"), os.path.join(args.path, str(index))))
-
-    # for index in tqdm(range(dataset_size)):
-    #     data, scene, camera, light = generate_scene()
-    #     # rgb = render(size, scene, camera, light)
-    #     rgbs = animate(size, scene, camera, light)
-    #     # print(rgb.shape)
-    #     frame = 0
-    #     for rgb in rgbs:
-    #         rgb_img = Image.fromarray(rgb)
-    #         rgb_path = os.path.join(args.path, str(index) + '_' + str(frame) + '.png')
-    #         rgb_img.save(rgb_path)
-    #         # rgb_array.append(data)
-    #         frame += 1
-    #     img_path = os.path.join(args.path, "")
-    #     os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, str(index) + "_"), os.path.join(args.path, str(index))))
-    # with open(data_path, 'wb') as f:
-    #     pickle.dump(rgb_array, f)
+    index = 0
+    # scene, camera, light = generate_scene()
+    # rgb = render(size, scene, camera, light)
+    rgbs = animate(scene, camera, light, size, spheres)
+    # print(rgb.shape)
+    frame = 0
+    for rgb in rgbs:
+        rgb_img = Image.fromarray(rgb)
+        rgb_path = os.path.join(args.path, str(index) + '_' + str(frame) + '.png')
+        rgb_img.save(rgb_path)
+        # rgb_array.append(data)
+        frame += 1
+    img_path = os.path.join(args.path, "")
+    os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, str(index) + "_"), os.path.join(args.path, str(index))))
 
 def load_data(data_path):
 
@@ -176,8 +157,8 @@ class RayTracingDataset(Dataset):
 
 if __name__ == "__main__":
     # generate_dataset(args.size)
-    _, scene, camera0, light0 = generate_scene()
-    save_dataset(1,'data/art/images', scene, camera0, light0)
+    _, scene, camera0, light0 = generate_scene(args.spheres)
+    save_dataset('data/art/images', scene, camera0, light0, args.size, args.spheres)
     # load_data(args.data_path)
     # load_dataset()
     

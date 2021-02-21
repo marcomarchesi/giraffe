@@ -37,15 +37,16 @@ Arguments
 '''
 
 parser = ArgumentParser()
-parser.add_argument('--image-width', default=128)
-parser.add_argument('--image-height', default=128)
+parser.add_argument('--size', default=128, type=int)
+parser.add_argument('--spheres', default=10)
 parser.add_argument('--focal-length', default=1.0)
 args = parser.parse_args()
 
 
 # size of the image to render
-(width, height) = (args.image_width, args.image_height)
-size = (width, height)
+# (width, height) = (args.image_width, args.image_height)
+size = args.size
+default_size = 128
 
 # start with this
 # increment the build number
@@ -90,7 +91,7 @@ class MainWindow(QLabel):
         super(MainWindow, self).__init__()
         self.label = QLabel(self)
         
-        _, self.scene, self.camera0, self.light0 = generate_scene()
+        _, self.scene, self.camera0, self.light0 = generate_scene(args.spheres)
         self.initUI()
         
     def initUI(self):      
@@ -98,20 +99,20 @@ class MainWindow(QLabel):
         self.setWindowTitle("Giraffe")
         rgb = render(self.scene, self.camera0, self.light0)
         self.setPixmap(array2qpixmap(rgb))
-        self.resize(width, height)
+        self.resize(default_size, default_size)
         rgb_img = Image.fromarray(rgb)
         rgb_img.save('render.png')
 
         # render time
-        self.label.setGeometry(width - 100, height - 100, 250, 150)
+        self.label.setGeometry(default_size - 100, default_size - 100, 250, 150)
         self.label.setStyleSheet("QLabel {color:yellow;}")
         self.label.show()
 
         self.show()
     
-    def _render(self):
+    def _render(self, size):
         timer = TicToc()
-        rgb = render(self.scene, self.camera0, self.light0)
+        rgb = render(self.scene, self.camera0, self.light0, size)
         self.setPixmap(array2qpixmap(rgb))
         self.label.setText(str(timer.now) + "s")
         return self.scene, self.light0, self.camera0
@@ -146,13 +147,13 @@ class MainWindow(QLabel):
             self.light0.intensity += .25
             self._render()
         if e.key() == QtCore.Qt.Key.Key_G:
-            _, self.scene, self.camera0, self.light0 = generate_scene()
+            _, self.scene, self.camera0, self.light0 = generate_scene(args.spheres)
             self._render()
         if e.key() == QtCore.Qt.Key.Key_R:
             # _, self.scene, self.camera0, self.light0 = generate_scene()
             # self._render()
-            save_dataset(1,'data/art/images_1102', self.scene, self.camera0, self.light0)
-            self._render()
+            save_dataset('data/art/images_1102', self.scene, self.camera0, self.light0, args.size, args.spheres)
+            self._render(args.size)
         
         
 
