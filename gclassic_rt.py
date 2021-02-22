@@ -38,7 +38,7 @@ Arguments
 
 parser = ArgumentParser()
 parser.add_argument('--size', default=128, type=int)
-parser.add_argument('--spheres', default=10)
+parser.add_argument('--spheres', default=10, type=int)
 parser.add_argument('--focal-length', default=1.0)
 args = parser.parse_args()
 
@@ -148,7 +148,7 @@ class MainWindow(QLabel):
             self._render()
         if e.key() == QtCore.Qt.Key.Key_G:
             _, self.scene, self.camera0, self.light0 = generate_scene(args.spheres)
-            self._render()
+            self._render(args.size)
         if e.key() == QtCore.Qt.Key.Key_R:
             # _, self.scene, self.camera0, self.light0 = generate_scene()
             # self._render()

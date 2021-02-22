@@ -9,8 +9,11 @@ from gmath import vec3
 from gprimitives import raytrace
 from tqdm import tqdm
 from functools import partial
+from PIL import Image
+import os
 
 import multiprocessing
+
 
 def render(scene, camera, light, size=128):
 
@@ -18,7 +21,6 @@ def render(scene, camera, light, size=128):
     h = size
     # aspect ratio
     r = float(w) / h
-    # r = 1.0
     # Screen coordinates: x0, y0, x1, y1.
     S = (-1, 1 / r + .25, 1, -1 / r + .25)
     x = np.tile(np.linspace(S[0], S[2], w), h)
@@ -44,32 +46,43 @@ def render(scene, camera, light, size=128):
 
     return rgb
 
-def render_single_frame(index):
-    # frame_index, scene, camera, light, rgbs = tpl
-    # for i in range(frame_index * 2 - 1):
-    print(index)
 
-    return 0
+def render_single_frame(index, animations, path):
+    for idx, sphere in enumerate(global_scene[1:]):
+        sphere.c.y = animations[idx][index]
+    rgb = render(global_scene, global_camera, global_light, global_size)
+    #     rgbs.append(rgb)
+    # return index
+    rgb_img = Image.fromarray(rgb)
+    rgb_path = os.path.join(path, '0_' + str(index) + '.png')
+    rgb_img.save(rgb_path)
+    return rgb
 
-    # _scene = scene
-    # for index, sphere in enumerate(_scene[1:]):
-    #     sphere.c.y = sphere_y_animations[index][i]
-    # rgb = render(_scene, camera, light, size=512)
-    # rgbs.append(rgb)
 
-
-def animate(scene, camera, light, size, spheres):
+def animate(scene, camera, light, size, spheres, path):
     '''
     Parameters: size, scene, camera, light
     Returns: a sequence of images
     '''
     # multiprocessing
-    pool = multiprocessing.Pool(4)
+    global global_camera
+    global global_scene
+    global global_light
+    global global_size
+    
+    global_camera = camera
+    global_scene = scene
+    global_light = light
+    global_size = size
+    
+    pool = multiprocessing.Pool()
+
+    sphere_y_animations = []
 
     seq_length = 30
     offset = 0.05
-    sphere_y_animations = []
-    rgbs = []
+
+    # rgbs = []
     direction = random.randint(0,1)
     for sphere in scene[1:]:
         offset_randomness = random.uniform(0.3, 1.5)
@@ -85,16 +98,23 @@ def animate(scene, camera, light, size, spheres):
             direction = 0
         sphere_y_animations.append(sphere_y_anim)
         # print(len(sphere_y_anim))
-
-    # arguments_tuple = (seq_length, scene, camera, light, rgbs)
-    # rgbs = zip(*pool.map(render_single_frame, range(seq_length * 2 - 1)))
     
-    for i in tqdm(range(seq_length * 2 - 1)):
-        _scene = scene
-        for index, sphere in enumerate(_scene[1:]):
-            sphere.c.y = sphere_y_animations[index][i]
-        rgb = render(_scene, camera, light, size)
-        rgbs.append(rgb)
+    # print(sphere_y_animations)
+
+
+    pool_fn = partial(render_single_frame, animations=sphere_y_animations, path=path)
+    
+
+    rgbs = pool.map(pool_fn, range(seq_length * 2 - 1))
+
+    # print(rgbs)
+    
+    # for i in tqdm(range(seq_length * 2 - 1)):
+    #     _scene = scene
+    #     for index, sphere in enumerate(_scene[1:]):
+    #         sphere.c.y = sphere_y_animations[index][i]
+    #     rgb = render(_scene, camera, light, size)
+    #     rgbs.append(rgb)
 
     return rgbs
 

@@ -86,20 +86,20 @@ def save_dataset(data_path, scene, camera, light, size, spheres):
 
     rgb_array = []
 
-    index = 0
+    # index = 0
     # scene, camera, light = generate_scene()
     # rgb = render(size, scene, camera, light)
-    rgbs = animate(scene, camera, light, size, spheres)
+    animate(scene, camera, light, size, spheres, args.path)
     # print(rgb.shape)
-    frame = 0
-    for rgb in rgbs:
-        rgb_img = Image.fromarray(rgb)
-        rgb_path = os.path.join(args.path, str(index) + '_' + str(frame) + '.png')
-        rgb_img.save(rgb_path)
-        # rgb_array.append(data)
-        frame += 1
-    img_path = os.path.join(args.path, "")
-    os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, str(index) + "_"), os.path.join(args.path, str(index))))
+    # frame = 0
+    # for rgb in rgbs:
+    #     rgb_img = Image.fromarray(rgb)
+    #     rgb_path = os.path.join(args.path, '0_' + str(frame) + '.png')
+    #     rgb_img.save(rgb_path)
+    #     # rgb_array.append(data)
+    #     frame += 1
+    # img_path = os.path.join(args.path, "")
+    os.system("ffmpeg -r 30 -i {}%01d.png -vcodec libx264 -pix_fmt yuv420p -crf 1 -y {}.mp4".format(os.path.join(args.path, "0_"), os.path.join(args.path, '0')))
 
 def load_data(data_path):
 
