@@ -1,6 +1,6 @@
 termcolor==1.1.0
 Pillow==7.1.2
-numpy==1.18.4
+numpy==1.22.0
 PySide2==5.14.2.1
 PyYAML==5.3.1
 h5py==2.10.0
